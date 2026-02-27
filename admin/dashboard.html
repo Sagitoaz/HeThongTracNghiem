@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Admin PTIT</title>
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="../css/admin.css" />
+</head>
+<body class="admin-body">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__brand">
+      <span class="sidebar__logo">⚙️ Admin Panel</span>
+      <span class="sidebar__sub">PTIT Trắc Nghiệm</span>
+    </div>
+    <nav class="sidebar__nav">
+      <a href="dashboard.html" class="sidebar__link sidebar__link--active">
+        <span class="sidebar__icon">📊</span> Dashboard
+      </a>
+      <a href="exam-editor.html" class="sidebar__link">
+        <span class="sidebar__icon">📝</span> Quản lý đề thi
+      </a>
+      <a href="statistics.html" class="sidebar__link">
+        <span class="sidebar__icon">📈</span> Thống kê
+      </a>
+      <a href="student-results.html" class="sidebar__link">
+        <span class="sidebar__icon">👥</span> Kết quả sinh viên
+      </a>
+    </nav>
+    <div class="sidebar__footer">© 2026 PTIT</div>
+  </aside>
+
+  <!-- Main -->
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+        <span class="admin-topbar__title">Dashboard</span>
+      </div>
+      <div class="admin-topbar__user">
+        <span id="adminUsername"></span>
+        <button class="btn btn--ghost btn--sm" id="btnLogout">Đăng xuất</button>
+      </div>
+    </header>
+
+    <main class="admin-content">
+      <!-- Stats -->
+      <div class="admin-stats" id="statsGrid"></div>
+
+      <!-- Recent submissions -->
+      <div class="card">
+        <div class="card__header">
+          <h2 class="card__title">Lượt nộp bài gần đây</h2>
+        </div>
+        <div class="table-wrap">
+          <table class="table" id="recentTable">
+            <thead>
+              <tr>
+                <th>Sinh viên</th>
+                <th>Bài thi</th>
+                <th>Điểm</th>
+                <th>Câu đúng</th>
+                <th>Thời điểm nộp</th>
+              </tr>
+            </thead>
+            <tbody id="recentTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../data/mock-data.js"></script>
+  <script src="../js/data-service.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/admin/dashboard.js"></script>
+</body>
+</html>

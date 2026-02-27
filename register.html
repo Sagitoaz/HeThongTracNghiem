@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Đăng ký — Hệ Thống Trắc Nghiệm PTIT</title>
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/auth.css" />
+</head>
+<body class="auth-page">
+
+  <!-- Hero banner -->
+  <header class="auth-hero">
+    <div class="auth-hero__logo">🎓</div>
+    <div class="auth-hero__school">Học viện Công nghệ Bưu chính Viễn thông — PTIT</div>
+    <h1 class="auth-hero__title">Hệ Thống Trắc Nghiệm Trực Tuyến</h1>
+  </header>
+
+  <!-- Main content -->
+  <main class="auth-main">
+    <div class="auth-card">
+      <h2 class="auth-card__heading">Đăng ký tài khoản</h2>
+      <p class="auth-card__sub">Tạo tài khoản sinh viên để bắt đầu làm bài trắc nghiệm.</p>
+
+      <!-- Error banner -->
+      <div id="errorBanner" class="auth-error-banner hidden" role="alert" aria-live="assertive"></div>
+
+      <!-- Register form -->
+      <form id="registerForm" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="username">Tên đăng nhập</label>
+          <input
+            id="username"
+            class="form-input"
+            type="text"
+            name="username"
+            placeholder="3–20 ký tự"
+            autocomplete="username"
+            autofocus
+          />
+          <p class="field-error" id="usernameError"></p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Email</label>
+          <input
+            id="email"
+            class="form-input"
+            type="email"
+            name="email"
+            placeholder="example@ptit.edu.vn"
+            autocomplete="email"
+          />
+          <p class="field-error" id="emailError"></p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Mật khẩu</label>
+          <div class="input-wrap">
+            <input
+              id="password"
+              class="form-input"
+              type="password"
+              name="password"
+              placeholder="Tối thiểu 6 ký tự"
+              autocomplete="new-password"
+            />
+            <button type="button" class="btn-toggle-pw" id="togglePw" aria-label="Hiện/ẩn mật khẩu">👁</button>
+          </div>
+          <p class="field-error" id="passwordError"></p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="confirmPassword">Xác nhận mật khẩu</label>
+          <div class="input-wrap">
+            <input
+              id="confirmPassword"
+              class="form-input"
+              type="password"
+              name="confirmPassword"
+              placeholder="Nhập lại mật khẩu"
+              autocomplete="new-password"
+            />
+            <button type="button" class="btn-toggle-pw" id="toggleCpw" aria-label="Hiện/ẩn xác nhận mật khẩu">👁</button>
+          </div>
+          <p class="field-error" id="confirmPasswordError"></p>
+        </div>
+
+        <div class="form-group mt-md">
+          <button type="submit" class="btn btn--primary btn--full">Đăng ký</button>
+        </div>
+      </form>
+
+      <div class="auth-link-row">
+        Đã có tài khoản? <a href="login.html">Đăng nhập</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="auth-footer">
+    © 2026 Học viện Công nghệ Bưu chính Viễn thông (PTIT). All rights reserved.
+  </footer>
+
+  <!-- Scripts -->
+  <script src="data/mock-data.js"></script>
+  <script src="js/data-service.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // ─── Init ─────────────────────────────────────────────────
+    DataService.init();
+
+    // Redirect if already logged in
+    if (AuthService.getCurrentUser()) {
+      window.location.href = 'index.html';
+    }
+
+    // ─── Password toggles ──────────────────────────────────────
+    function makeToggle(btnId, inputId) {
+      document.getElementById(btnId).addEventListener('click', function () {
+        var pw = document.getElementById(inputId);
+        if (pw.type === 'password') {
+          pw.type = 'text';
+          this.textContent = '🙈';
+        } else {
+          pw.type = 'password';
+          this.textContent = '👁';
+        }
+      });
+    }
+    makeToggle('togglePw', 'password');
+    makeToggle('toggleCpw', 'confirmPassword');
+
+    // ─── Helpers ──────────────────────────────────────────────
+    var EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    function showError(msg) {
+      var banner = document.getElementById('errorBanner');
+      banner.textContent = msg;
+      banner.classList.remove('hidden');
+    }
+    function clearError() {
+      document.getElementById('errorBanner').classList.add('hidden');
+    }
+    function setFieldError(fieldId, msg) {
+      var el = document.getElementById(fieldId + 'Error');
+      var input = document.getElementById(fieldId);
+      if (msg) {
+        el.textContent = msg;
+        input.classList.add('form-input--error');
+      } else {
+        el.textContent = '';
+        input.classList.remove('form-input--error');
+      }
+    }
+
+    function validateUsername(val) {
+      if (!val) return 'Vui lòng nhập tên đăng nhập.';
+      if (val.length < 3 || val.length > 20) return 'Tên đăng nhập phải từ 3–20 ký tự.';
+      return '';
+    }
+    function validateEmail(val) {
+      if (!val) return 'Vui lòng nhập email.';
+      if (!EMAIL_REGEX.test(val)) return 'Email không hợp lệ.';
+      return '';
+    }
+    function validatePassword(val) {
+      if (!val) return 'Vui lòng nhập mật khẩu.';
+      if (val.length < 6) return 'Mật khẩu phải ít nhất 6 ký tự.';
+      return '';
+    }
+    function validateConfirm(val, pw) {
+      if (!val) return 'Vui lòng xác nhận mật khẩu.';
+      if (val !== pw) return 'Mật khẩu xác nhận không khớp.';
+      return '';
+    }
+
+    // ─── Real-time blur validation ─────────────────────────────
+    document.getElementById('username').addEventListener('blur', function () {
+      setFieldError('username', validateUsername(this.value.trim()));
+    });
+    document.getElementById('email').addEventListener('blur', function () {
+      setFieldError('email', validateEmail(this.value.trim()));
+    });
+    document.getElementById('password').addEventListener('blur', function () {
+      setFieldError('password', validatePassword(this.value.trim()));
+    });
+    document.getElementById('confirmPassword').addEventListener('blur', function () {
+      var pw = document.getElementById('password').value.trim();
+      setFieldError('confirmPassword', validateConfirm(this.value.trim(), pw));
+    });
+
+    // ─── Form submission ──────────────────────────────────────
+    document.getElementById('registerForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      clearError();
+
+      var username = document.getElementById('username').value.trim();
+      var email    = document.getElementById('email').value.trim();
+      var password = document.getElementById('password').value.trim();
+      var confirm  = document.getElementById('confirmPassword').value.trim();
+
+      var errs = {
+        username:        validateUsername(username),
+        email:           validateEmail(email),
+        password:        validatePassword(password),
+        confirmPassword: validateConfirm(confirm, password),
+      };
+
+      var hasError = false;
+      for (var field in errs) {
+        setFieldError(field, errs[field]);
+        if (errs[field]) hasError = true;
+      }
+      if (hasError) return;
+
+      var result = AuthService.register(username, email, password, confirm);
+      if (result.success) {
+        window.location.href = 'login.html?registered=1';
+      } else {
+        showError(result.message);
+      }
+    });
+  </script>
+</body>
+</html>

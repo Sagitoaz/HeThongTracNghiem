@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Đăng nhập — Hệ Thống Trắc Nghiệm PTIT</title>
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/auth.css" />
+</head>
+<body class="auth-page">
+
+  <!-- Hero banner -->
+  <header class="auth-hero">
+    <div class="auth-hero__logo">🎓</div>
+    <div class="auth-hero__school">Học viện Công nghệ Bưu chính Viễn thông — PTIT</div>
+    <h1 class="auth-hero__title">Hệ Thống Trắc Nghiệm Trực Tuyến</h1>
+  </header>
+
+  <!-- Main content -->
+  <main class="auth-main">
+    <div class="auth-card">
+      <h2 class="auth-card__heading">Đăng nhập</h2>
+      <p class="auth-card__sub">Nhập thông tin tài khoản sinh viên để tiếp tục.</p>
+
+      <!-- Success banner (after register) -->
+      <div id="successBanner" class="auth-success-banner hidden" aria-live="polite">
+        ✅ Đăng ký thành công! Vui lòng đăng nhập.
+      </div>
+
+      <!-- Error banner -->
+      <div id="errorBanner" class="auth-error-banner hidden" role="alert" aria-live="assertive"></div>
+
+      <!-- Login form -->
+      <form id="loginForm" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="username">Tên đăng nhập</label>
+          <input
+            id="username"
+            class="form-input"
+            type="text"
+            name="username"
+            placeholder="Nhập tên đăng nhập"
+            autocomplete="username"
+            autofocus
+          />
+          <p class="field-error" id="usernameError"></p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Mật khẩu</label>
+          <div class="input-wrap">
+            <input
+              id="password"
+              class="form-input"
+              type="password"
+              name="password"
+              placeholder="Nhập mật khẩu"
+              autocomplete="current-password"
+            />
+            <button type="button" class="btn-toggle-pw" id="togglePw" aria-label="Hiện/ẩn mật khẩu">👁</button>
+          </div>
+          <p class="field-error" id="passwordError"></p>
+        </div>
+
+        <div class="form-group mt-md">
+          <button type="submit" class="btn btn--primary btn--full">Đăng nhập</button>
+        </div>
+      </form>
+
+      <div class="auth-link-row">
+        Chưa có tài khoản? <a href="register.html">Đăng ký ngay</a>
+      </div>
+
+      <div class="auth-divider">hoặc</div>
+
+      <div class="auth-link-row">
+        Bạn là quản trị viên? <a href="admin/login.html">Đăng nhập Admin</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="auth-footer">
+    © 2026 Học viện Công nghệ Bưu chính Viễn thông (PTIT). All rights reserved.
+  </footer>
+
+  <!-- Scripts -->
+  <script src="data/mock-data.js"></script>
+  <script src="js/data-service.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // ─── Init ─────────────────────────────────────────────────
+    DataService.init();
+
+    // Redirect if already logged in
+    if (AuthService.getCurrentUser()) {
+      window.location.href = 'index.html';
+    }
+
+    // Show success banner if redirected from register
+    if (new URLSearchParams(window.location.search).get('registered') === '1') {
+      document.getElementById('successBanner').classList.remove('hidden');
+    }
+
+    // ─── Password toggle ───────────────────────────────────────
+    document.getElementById('togglePw').addEventListener('click', function () {
+      var pw = document.getElementById('password');
+      if (pw.type === 'password') {
+        pw.type = 'text';
+        this.textContent = '🙈';
+      } else {
+        pw.type = 'password';
+        this.textContent = '👁';
+      }
+    });
+
+    // ─── Helpers ──────────────────────────────────────────────
+    function showError(msg) {
+      var banner = document.getElementById('errorBanner');
+      banner.textContent = msg;
+      banner.classList.remove('hidden');
+    }
+    function clearError() {
+      document.getElementById('errorBanner').classList.add('hidden');
+    }
+    function setFieldError(fieldId, msg) {
+      var el = document.getElementById(fieldId + 'Error');
+      var input = document.getElementById(fieldId);
+      if (msg) {
+        el.textContent = msg;
+        input.classList.add('form-input--error');
+      } else {
+        el.textContent = '';
+        input.classList.remove('form-input--error');
+      }
+    }
+
+    // ─── Form submission ──────────────────────────────────────
+    document.getElementById('loginForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      clearError();
+
+      var username = document.getElementById('username').value.trim();
+      var password = document.getElementById('password').value.trim();
+      var valid = true;
+
+      if (!username) {
+        setFieldError('username', 'Vui lòng nhập tên đăng nhập.');
+        valid = false;
+      } else {
+        setFieldError('username', '');
+      }
+
+      if (!password) {
+        setFieldError('password', 'Vui lòng nhập mật khẩu.');
+        valid = false;
+      } else {
+        setFieldError('password', '');
+      }
+
+      if (!valid) return;
+
+      var result = AuthService.login(username, password);
+      if (result.success) {
+        window.location.href = 'index.html';
+      } else {
+        showError(result.message);
+      }
+    });
+  </script>
+</body>
+</html>

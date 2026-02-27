@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quản lý đề thi — Admin PTIT</title>
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="../css/admin.css" />
+  <style>
+    .options-editor { display: flex; flex-direction: column; gap: 8px; }
+    .option-row { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; }
+    .option-row input[type=radio] { width:18px; height:18px; cursor:pointer; accent-color: var(--color-primary); }
+  </style>
+</head>
+<body class="admin-body">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__brand">
+      <span class="sidebar__logo">⚙️ Admin Panel</span>
+      <span class="sidebar__sub">PTIT Trắc Nghiệm</span>
+    </div>
+    <nav class="sidebar__nav">
+      <a href="dashboard.html" class="sidebar__link"><span class="sidebar__icon">📊</span> Dashboard</a>
+      <a href="exam-editor.html" class="sidebar__link sidebar__link--active"><span class="sidebar__icon">📝</span> Quản lý đề thi</a>
+      <a href="statistics.html" class="sidebar__link"><span class="sidebar__icon">📈</span> Thống kê</a>
+      <a href="student-results.html" class="sidebar__link"><span class="sidebar__icon">👥</span> Kết quả sinh viên</a>
+    </nav>
+    <div class="sidebar__footer">© 2026 PTIT</div>
+  </aside>
+
+  <!-- Main -->
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+        <span class="admin-topbar__title">Quản lý đề thi</span>
+      </div>
+      <div class="admin-topbar__user">
+        <span id="adminUsername"></span>
+        <button class="btn btn--ghost btn--sm" id="btnLogout">Đăng xuất</button>
+      </div>
+    </header>
+
+    <main class="admin-content">
+      <div class="page-header">
+        <h1 class="page-title">Danh sách đề thi</h1>
+        <button class="btn btn--primary" id="btnAddExam">+ Thêm đề thi</button>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Tên đề thi</th>
+                <th>Loại</th>
+                <th>Thời gian</th>
+                <th>Số câu</th>
+                <th>Ngày tạo</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="examTbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Question panel (shown when editing an exam) -->
+      <div id="questionPanel" class="card mt-xl hidden">
+        <div class="card__header">
+          <h2 class="card__title" id="qPanelTitle">Câu hỏi</h2>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn--ghost btn--sm" id="btnImportExcel">📥 Nhập từ Excel</button>
+            <button class="btn btn--secondary btn--sm" id="btnAddQuestion">+ Thêm câu hỏi</button>
+          </div>
+        </div>
+        <div id="questionList"></div>
+
+        <!-- Import zone -->
+        <div id="importSection" class="hidden" style="padding:var(--space-lg)">
+          <div class="import-zone" id="importZone">
+            <div class="import-zone__icon">📂</div>
+            <div class="import-zone__text">Kéo thả hoặc <strong>click</strong> để chọn file Excel (.xlsx, .xls)</div>
+            <div class="import-zone__hint" id="formatHint"></div>
+          </div>
+          <input type="file" id="excelInput" accept=".xlsx,.xls" style="display:none" />
+          <div id="importResult" class="mt-md"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Exam Modal (Add/Edit exam) -->
+  <div id="examModal" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal__header">
+        <div class="modal__title" id="examModalTitle">Thêm đề thi</div>
+        <button class="modal__close" id="closeExamModal">×</button>
+      </div>
+      <div class="modal__body">
+        <div class="form-group">
+          <label class="form-label">Tên đề thi *</label>
+          <input id="fExamName" class="form-input" type="text" placeholder="Nhập tên đề thi" />
+          <p class="field-error" id="fExamNameErr"></p>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mô tả</label>
+          <textarea id="fExamDesc" class="form-textarea" placeholder="Mô tả ngắn về đề thi"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Loại *</label>
+            <select id="fExamType" class="form-select">
+              <option value="free">Tự do</option>
+              <option value="scheduled">Có lịch</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Thời gian làm bài (phút) *</label>
+            <input id="fExamDuration" class="form-input" type="number" min="1" placeholder="30" />
+            <p class="field-error" id="fExamDurationErr"></p>
+          </div>
+        </div>
+        <div id="startTimeGroup" class="form-group hidden">
+          <label class="form-label">Thời gian bắt đầu</label>
+          <input id="fExamStartTime" class="form-input" type="datetime-local" />
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--ghost" id="cancelExamModal">Hủy</button>
+        <button class="btn btn--primary" id="saveExamBtn">Lưu</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Question Modal (Add/Edit question) -->
+  <div id="questionModal" class="modal-overlay hidden">
+    <div class="modal" style="max-width:600px">
+      <div class="modal__header">
+        <div class="modal__title" id="qModalTitle">Thêm câu hỏi</div>
+        <button class="modal__close" id="closeQModal">×</button>
+      </div>
+      <div class="modal__body">
+        <div class="form-group">
+          <label class="form-label">Câu hỏi *</label>
+          <textarea id="fQText" class="form-textarea" style="min-height:80px" placeholder="Nhập nội dung câu hỏi"></textarea>
+          <p class="field-error" id="fQTextErr"></p>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Các đáp án * (chọn đáp án đúng ở nút radio)</label>
+          <div class="options-editor" id="optionsEditor"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Giải thích (tùy chọn)</label>
+          <textarea id="fQExplain" class="form-textarea" style="min-height:60px" placeholder="Giải thích đáp án đúng"></textarea>
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--ghost" id="cancelQModal">Hủy</button>
+        <button class="btn btn--primary" id="saveQBtn">Lưu câu hỏi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete confirm modal -->
+  <div id="deleteModal" class="modal-overlay hidden">
+    <div class="modal" style="max-width:420px">
+      <div class="modal__header">
+        <div class="modal__title">Xác nhận xóa</div>
+        <button class="modal__close" id="closeDeleteModal">×</button>
+      </div>
+      <div class="modal__body">
+        <p id="deleteModalMsg"></p>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn--ghost" id="cancelDelete">Hủy</button>
+        <button class="btn btn--danger" id="confirmDelete">Xóa</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="../data/mock-data.js"></script>
+  <script src="../js/data-service.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/import-service.js"></script>
+  <script src="../js/admin/exam-editor.js"></script>
+</body>
+</html>

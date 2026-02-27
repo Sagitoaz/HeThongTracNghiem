@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thống kê — Admin PTIT</title>
+  <link rel="stylesheet" href="../css/main.css" />
+  <link rel="stylesheet" href="../css/admin.css" />
+</head>
+<body class="admin-body">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__brand">
+      <span class="sidebar__logo">⚙️ Admin Panel</span>
+      <span class="sidebar__sub">PTIT Trắc Nghiệm</span>
+    </div>
+    <nav class="sidebar__nav">
+      <a href="dashboard.html" class="sidebar__link"><span class="sidebar__icon">📊</span> Dashboard</a>
+      <a href="exam-editor.html" class="sidebar__link"><span class="sidebar__icon">📝</span> Quản lý đề thi</a>
+      <a href="statistics.html" class="sidebar__link sidebar__link--active"><span class="sidebar__icon">📈</span> Thống kê</a>
+      <a href="student-results.html" class="sidebar__link"><span class="sidebar__icon">👥</span> Kết quả sinh viên</a>
+    </nav>
+    <div class="sidebar__footer">© 2026 PTIT</div>
+  </aside>
+
+  <!-- Main -->
+  <div class="admin-main">
+    <header class="admin-topbar">
+      <div style="display:flex;align-items:center;gap:12px">
+        <button class="sidebar-toggle" id="sidebarToggle">☰</button>
+        <span class="admin-topbar__title">Thống kê</span>
+      </div>
+      <div class="admin-topbar__user">
+        <span id="adminUsername"></span>
+        <button class="btn btn--ghost btn--sm" id="btnLogout">Đăng xuất</button>
+      </div>
+    </header>
+
+    <main class="admin-content">
+
+      <!-- Overall stats -->
+      <div class="admin-stats" id="overallStats"></div>
+
+      <!-- Filter row -->
+      <div class="card mb-xl">
+        <div class="card__header">
+          <h2 class="card__title">Thống kê theo đề thi</h2>
+          <button class="btn btn--primary btn--sm" id="btnExportPDF" disabled>📄 Xuất PDF</button>
+        </div>
+        <div class="flex gap-md" style="padding:0 var(--space-lg) var(--space-lg);flex-wrap:wrap;align-items:flex-end">
+          <div class="form-group" style="margin-bottom:0;flex:1;min-width:200px">
+            <label class="form-label">Đề thi</label>
+            <select id="filterExam" class="form-select"></select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats by exam -->
+      <div id="examStats" class="hidden">
+        <div class="admin-stats" id="examStatCards"></div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:24px" id="chartsRow">
+          <!-- Doughnut chart -->
+          <div class="card">
+            <div class="card__header"><h3 class="card__title">Tỷ lệ đúng/sai</h3></div>
+            <div style="max-width:260px;margin:0 auto">
+              <canvas id="doughnutChart"></canvas>
+            </div>
+          </div>
+          <!-- Bar chart -->
+          <div class="card">
+            <div class="card__header"><h3 class="card__title">Phân phối điểm</h3></div>
+            <canvas id="barChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Results table -->
+        <div class="card">
+          <div class="card__header"><h3 class="card__title">Bảng kết quả chi tiết</h3></div>
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr><th>Sinh viên</th><th>Điểm</th><th>Câu đúng</th><th>Thời gian</th><th>Nộp lúc</th></tr>
+              </thead>
+              <tbody id="statsTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty state if no exam selected -->
+      <div id="noExamMsg" class="empty-state">
+        <div class="empty-state__icon">📊</div>
+        <div class="empty-state__title">Chọn đề thi để xem thống kê</div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="../data/mock-data.js"></script>
+  <script src="../js/data-service.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/statistics-service.js"></script>
+  <script src="../js/export-service.js"></script>
+  <script src="../js/admin/statistics.js"></script>
+</body>
+</html>

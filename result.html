@@ -1,0 +1,132 @@
+<!DOCTYPE html><!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</html></body>  <script src="js/result.js"></script>  <script src="js/auth.js"></script>  <script src="js/data-service.js"></script>  <script src="data/mock-data.js"></script>  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>  </main>    </div>      <a href="index.html" class="btn btn--secondary">← Về danh sách bài thi</a>    <div class="flex justify-end gap-md mt-xl">    <!-- Bottom actions -->    </div>      <div id="reviewArea"></div>      </div>        <span class="card__title">Review đáp án</span>      <div class="card__header">    <div class="card">    <!-- Review questions -->    </div>      </div>        <canvas id="resultChart"></canvas>      <div class="chart-container">      </div>        <span class="card__title">Phân tích kết quả</span>      <div class="card__header">    <div class="card mb-xl">    <!-- Chart -->    <div id="resultStats" class="result-stats-grid"></div>    <!-- Stat cards -->    </div>      <div id="scoreFraction" class="result-hero__fraction"></div>      <div id="scoreDisplay" class="result-hero__score"></div>      <div class="result-hero__label">Kết quả bài thi</div>    <div id="resultHero" class="result-hero">    <!-- Score hero -->  <main class="page-main container">  <!-- Main -->  </nav>    </div>      <button class="btn btn--ghost btn--sm" id="btnLogout">Đăng xuất</button>      <span id="navUsername"></span>    <div class="navbar__user">    <a class="navbar__brand" href="index.html">🎓 PTIT Trắc Nghiệm</a>  <nav class="navbar">  <!-- Navbar --><body></head>  <link rel="stylesheet" href="css/exam.css" />  <link rel="stylesheet" href="css/main.css" />  <title>Kết quả thi — Hệ Thống Trắc Nghiệm PTIT</title>  <meta name="viewport" content="width=device-width, initial-scale=1.0" />  <meta charset="UTF-8" /><head><html lang="vi"><html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kết quả — Hệ Thống Trắc Nghiệm PTIT</title>
+  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/exam.css" />
+</head>
+<body>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a class="navbar__brand" href="index.html">🎓 PTIT Trắc Nghiệm</a>
+    <div class="navbar__nav">
+      <div class="navbar__user">
+        <span id="navUsername"></span>
+        <button class="btn btn--ghost btn--sm" id="btnLogout">Đăng xuất</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main -->
+  <main class="page-main container">
+
+    <!-- Score hero -->
+    <div class="result-hero">
+      <div class="result-hero__label" id="resultExamName"></div>
+      <div class="result-hero__score" id="resultScore"></div>
+      <div class="result-hero__fraction" id="resultFraction"></div>
+    </div>
+
+    <!-- Stats grid -->
+    <div class="result-stats-grid" id="resultStatsGrid"></div>
+
+    <!-- Chart -->
+    <div class="card mb-xl">
+      <div class="card__header">
+        <h2 class="card__title">Biểu đồ kết quả</h2>
+      </div>
+      <div class="chart-container">
+        <canvas id="resultChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Review questions -->
+    <div class="card">
+      <div class="card__header">
+        <h2 class="card__title">Xem lại đáp án</h2>
+      </div>
+      <div id="reviewList"></div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex justify-end gap-md mt-xl">
+      <a href="index.html" class="btn btn--secondary">← Về danh sách đề thi</a>
+    </div>
+
+  </main>
+
+  <script src="data/mock-data.js"></script>
+  <script src="js/data-service.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="js/result.js"></script>
+</body>
+</html>
