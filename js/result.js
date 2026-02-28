@@ -116,15 +116,18 @@
 
       var statusBadge = (userAns === correct)
         ? '<span class="badge badge--success">✓ Đúng</span>'
-        : '<span class="badge badge--danger">✗ Sai</span>';
+        : (userAns === undefined || userAns === null)
+          ? '<span class="badge badge--warning">— Bỏ qua</span>'
+          : '<span class="badge badge--danger">✗ Sai</span>';
 
       var explanationHtml = q.explanation
         ? '<div class="explanation-block">💡 ' + escHtml(q.explanation) + '</div>'
         : '';
 
-      return '<div class="question-card" style="margin-bottom:12px">' +
-        '<div class="question-card__number" style="display:flex;align-items:center;gap:8px">' +
-          'Câu ' + (idx + 1) + ' ' + statusBadge +
+      return '<div class="question-card">' +
+        '<div class="review-question-header">' +
+          '<span class="review-question-num">Câu ' + (idx + 1) + '</span>' +
+          statusBadge +
         '</div>' +
         '<div class="question-card__text">' + escHtml(q.text) + '</div>' +
         '<div class="options-list">' + optionsHtml + '</div>' +

@@ -91,3 +91,7 @@ temp/
 *.tar.gz
 *.rar
 *.7z
+
+.aidlc-rule-details/
+.copilot/
+aidlc-docs/
