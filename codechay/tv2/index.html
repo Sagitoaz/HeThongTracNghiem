@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>
+            Danh sách kỳ thi - Hệ thống trắc nghiệm
+        </title>
+    </head>
+
+    <body>
+        <div id="header">
+            <h1>Danh sách kỳ thi</h1>
+
+            <h3>Chọn bài thi và bắt đầu làm</h3>
+        </div>
+
+        <div id = "controls">
+
+            
+            <input id="searchInput"  type = "text" placeholder="Tìm kiếm kỳ thi">   
+                <select id = "statusFilter">
+                <option value = "all">
+                    Tất cả
+                </option>
+                <option value = "free">
+                    Truy cập tự do
+                </option>
+                <option value = "scheduled">
+                    Theo thời gian
+                </option>
+            </select>
+        </div>
+        <div id = "examList">
+            
+
+        </div>
+        
+        <script src="../../data/mock-data.js"> </script>
+        <script src="app.js"></script> 
+        
+    </body>
+</html>
