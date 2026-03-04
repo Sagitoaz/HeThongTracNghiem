@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kết quả bài thi</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header class="topbar">
+        <div class="brand">
+            <span class="logo">🎓</span>
+            <span class="brand-txt">Trắc nghiệm PTIT</span>
+        </div>
+
+        <div class="user">
+            <span class="username">user_test</span>
+            <button class="logout-btn" type="button">Đăng xuất</button>
+        </div>
+    </header>
+    <main class="container">
+
+        <!-- Hiển thị kết quả -->
+        <section class="result-card">
+            <p class="subtitle">Kết quả bài thi của bạn:</p>
+            <h1 class="score">0.0</h1>
+            <p class="meta">Đúng: 0/10</p>
+        </section>
+
+        <div class="infor-grid">
+            <section class="infor-card">
+                <p class="infor-title">BÀI THI</p>
+                <p class="infor-value">LUYỆN TẬP <br /> MẠNG MÁY TÍNH</p>
+            </section>
+
+            <section class="infor-card">
+                <p class="infor-title">THỜI GIAN LÀM BÀI</p>
+                <p class="infor-value">00:00</p>
+            </section>
+
+            <section class="infor-card">
+                <p class="infor-title">NỘP LÚC</p>
+                <p class="infor-value">00:00 <br /> 01/01/2024</p>
+            </section>
+        </div>
+
+        <!-- Hiển thị biểu đồ kết quả -->
+        <section class="chart-card">
+            <h2 class="chart-title">Biểu đồ kết quả</h2>
+            <div class="divider"></div>
+
+            <div class="chart-wrap">
+                <div class="chart"></div>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <span class="legend-color green"></span>
+                        <span>Đúng</span>
+                    </div>
+
+                    <div class="legend-item">
+                        <span class="legend-color red"></span>
+                        <span>Sai</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Hiển thị chi tiết từng câu hỏi -->
+        <section class="review-card">
+            <h2 class="review-title">Xem lại đáp án</h2>
+            <div class="divider"></div>
+
+            <!-- 1 câu hỏi -->
+            <div class="question-card">
+                <div class="q-head">
+                    <div class="q-left">
+                        <p class="q-number">CÂU 1</p>
+                        <p class="q-text">Mô hình OSI có bao nhiêu tầng?</p>
+                    </div>
+
+                    <span class="q-badge wrong">Sai</span>
+                    <!-- Đúng: <span class="q-badge correct">Đúng</span> -->
+                </div>
+
+                <div class="options">
+                    <div class="option">
+                        <span class="opt-letter">A</span>
+                        <span class="opt-text">5 tầng</span>
+                    </div>
+
+                    <div class="option">
+                        <span class="opt-letter">B</span>
+                        <span class="opt-text">6 tầng</span>
+                    </div>
+
+                    <!-- đáp án đúng -->
+                    <div class="option correct">
+                        <span class="opt-letter">C</span>
+                        <span class="opt-text">7 tầng</span>
+                    </div>
+
+                    <div class="option">
+                        <span class="opt-letter">D</span>
+                        <span class="opt-text">8 tầng</span>
+                    </div>
+                </div>
+
+                <div class="explain">
+                    <span class="bulb">💡</span>
+                    <p>
+                        Mô hình OSI gồm 7 tầng: Physical, Data Link, Network, Transport, Session,
+                        Presentation, Application.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+</body>
