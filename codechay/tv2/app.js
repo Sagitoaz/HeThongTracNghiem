@@ -30,9 +30,11 @@ const renderExam = (list) =>{
         p2.textContent = exam.description
         const buttonJoin = document.createElement("button");
         buttonJoin.id = "btn"
-        buttonJoin.textContent = "BẮT ĐẦU THI"
+        buttonJoin.textContent = "Bắt đầu thi"
         if(!isExamActive(exam)){
+            
             buttonJoin.disabled = true
+            
         }
 
         card.appendChild(h3);
