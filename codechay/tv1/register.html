@@ -1,126 +1,73 @@
 <!doctype html>
-<html lang="en">
+<html lang="vi">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Register</title>
-    <link rel="stylesheet" href="./auth.css" />
+    <title>Đăng ký Sinh viên - PTIT</title>
+    <link rel="stylesheet" href="auth.css" />
   </head>
-  <body class="auth-page">
-    <header>
-      <div class="header-inner">
-        <div class="site-brand">
-          <div class="site-name">Học viện công nghệ bưu chính viễn thông</div>
-          <div class="site-tag">Hệ thống thi trắc nghiệm trực tuyến</div>
-        </div>
-      </div>
+  <body>
+    <header class="app-header">
+      <h1>Học viện Công nghệ Bưu chính Viễn thông</h1>
     </header>
 
-    <main>
+    <main class="main-content">
       <div class="auth-container">
-        <div class="card-header">
-          <h2 class="card-title">Hệ thống thi trắc nghiệm</h2>
-          <p class="card-sub">Tạo tài khoản sinh viên</p>
+        <div class="auth-header">
+          <h2>ĐĂNG KÝ TÀI KHOẢN</h2>
         </div>
-
-        <div
-          class="success-banner"
-          id="successBanner"
-          role="status"
-          aria-live="polite"
-        >
-          Đăng ký thành công! Vui lòng đăng nhập.
-        </div>
-        <div
-          class="error-banner"
-          id="errorBanner"
-          role="alert"
-          aria-live="assertive"
-        ></div>
-
-        <form
-          id="registerForm"
-          class="auth-form"
-          action="#"
-          method="post"
-          novalidate
-        >
+        <form class="auth-form" id="student-register-form">
           <div class="form-group">
-            <label for="username">Tên đăng nhập</label>
+            <label for="username">Tên người dùng</label>
             <input
-              id="username"
               type="text"
-              name="username"
-              placeholder="Nhập tên đăng nhập"
-              autocomplete="username"
-              autofocus
+              id="username"
+              placeholder="Nhập tên người dùng"
+              required
             />
-            <p class="field-help">
-              Tên đăng nhập chỉ gồm chữ và số, không dấu.
-            </p>
           </div>
-
           <div class="form-group">
             <label for="email">Email</label>
             <input
-              id="email"
               type="email"
-              name="email"
-              placeholder="Nhập email"
-              autocomplete="email"
+              id="email"
+              placeholder="Nhập địa chỉ email"
+              required
             />
           </div>
-
           <div class="form-group">
             <label for="password">Mật khẩu</label>
-            <div class="pw-wrap">
-              <input
-                id="password"
-                type="password"
-                name="password"
-                placeholder="Nhập mật khẩu"
-                autocomplete="new-password"
-              />
-              <button type="button" class="pw-toggle" id="togglePw">
-                Hiện
-              </button>
-            </div>
-            <p class="field-help">Ít nhất 6 ký tự, nên gồm chữ và số.</p>
+            <input
+              type="password"
+              id="password"
+              placeholder="Tạo mật khẩu"
+              required
+            />
           </div>
-
           <div class="form-group">
-            <label for="confirmPassword">Xác nhận mật khẩu</label>
-            <div class="pw-wrap">
-              <input
-                id="confirmPassword"
-                type="password"
-                name="confirmPassword"
-                placeholder="Xác nhận mật khẩu"
-                autocomplete="new-password"
-              />
-              <button type="button" class="pw-toggle" id="toggleConfirmPw">
-                Hiện
-              </button>
-            </div>
+            <label for="confirm-password">Xác nhận mật khẩu</label>
+            <input
+              type="password"
+              id="confirm-password"
+              placeholder="Nhập lại mật khẩu"
+              required
+            />
           </div>
-
-          <div class="form-group">
-            <button type="submit" id="registerBtn" class="btn">Đăng ký</button>
+          <button type="submit" class="btn-submit">Đăng Ký</button>
+          <div class="auth-links">
+            <p>Đã có tài khoản? <a href="login.html">Đăng nhập ngay</a></p>
           </div>
         </form>
-
-        <p class="small-link">
-          Bạn đã có tài khoản?
-          <a class="small-link" href="login.html">Đăng nhập tại đây</a>
-        </p>
       </div>
     </main>
 
-    <footer>
-      <div class="footer-inner">
-        <div>Copyright © 2026 Học viện công nghệ bưu chính viễn thông</div>
-      </div>
+    <footer class="app-footer">
+      <p>
+        &copy; 2026 Học viện Công nghệ Bưu chính Viễn thông. Dành cho mục đích
+        học tập.
+      </p>
     </footer>
-    <script src="./auth.js"></script>
+
+    <script src="auth.js"></script>
   </body>
 </html>
