@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register</title>
+  </head>
+  <body>
+    <header>
+      <div>Học viện công nghệ bưu chính viễn thông</div>
+      <div>Hệ thống thi trắc nghiệm trực tuyến</div>
+    </header>
+
+    <main>
+      <div>
+        <h2>Đăng ký</h2>
+        <p>Nhập thông tin để tạo tài khoản sinh viên.</p>
+
+        <!-- Error banner -->
+        <div id="errorBanner" style="display: none; color: red"></div>
+        <form id="registerForm" novalidate>
+          <div>
+            <label for="username">Tên đăng nhập</label>
+            <input
+              id="username"
+              type="text"
+              name="username"
+              placeholder="Nhập tên đăng nhập"
+              autocomplete="username"
+              autofocus
+            />
+          </div>
+
+          <div>
+            <label for="email">Email</label>
+            <input
+              id="email"
+              type="text"
+              name="email"
+              placeholder="Nhập email"
+              autocomplete="email"
+            />
+          </div>
+
+          <div>
+            <label for="password">Password</label>
+            <input
+              id="password"
+              type="password"
+              name="password"
+              placeholder="Nhập password"
+              autocomplete="new-password"
+            />
+            <button type="button" id="togglePw">👁</button>
+          </div>
+
+          <div>
+            <label for="confirmPassword">Xác nhận lại mật khẩu</label>
+            <input
+              id="confirmPassword"
+              type="password"
+              name="confirmPassword"
+              placeholder="Xác nhận lại mật khẩu"
+              autocomplete="new-password"
+            />
+            <button type="button" id="toggleConfirmPw">👁</button>
+          </div>
+
+          <div>
+            <button type="button" id="registerBtn">Đăng ký</button>
+          </div>
+        </form>
+      </div>
+
+      <div>
+        <p>Bạn đã có tài khoản? <a href="login.html">Đăng nhập tại đây</a></p>
+      </div>
+    </main>
+
+    <footer>
+      <div>Copyright © 2026 Học viện công nghệ bưu chính viễn thông</div>
+    </footer>
+  </body>
+</html>
