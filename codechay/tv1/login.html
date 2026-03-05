@@ -4,29 +4,48 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login</title>
+    <link rel="stylesheet" href="./auth.css" />
   </head>
-  <body>
+  <body class="auth-page">
     <header>
-      <div>Học viện công nghệ bưu chính viễn thông</div>
-      <div>Hệ thống thi trắc nghiệm trực tuyến</div>
+      <div class="header-inner">
+        <div class="site-brand">
+          <div class="site-name">Học viện công nghệ bưu chính viễn thông</div>
+          <div class="site-tag">Hệ thống thi trắc nghiệm trực tuyến</div>
+        </div>
+      </div>
     </header>
 
     <main>
-      <!-- Login form -->
-      <div>
-        <h2>Đăng nhập</h2>
-        <p>Nhập thông tin tài khoản sinh viên để tiếp tục.</p>
-
-        <!-- Success banner (after register) -->
-        <div id="successBanner" style="display: none">
-          ✅ Đăng ký thành công! Vui lòng đăng nhập.
+      <div class="auth-container">
+        <div class="card-header">
+          <h2 class="card-title">Hệ thống thi trắc nghiệm</h2>
+          <p class="card-sub">Sinh viên — Đăng nhập</p>
         </div>
 
-        <!-- Error banner -->
-        <div id="errorBanner" style="display: none; color: red"></div>
+        <div
+          class="success-banner"
+          id="successBanner"
+          role="status"
+          aria-live="polite"
+        >
+          Đăng ký thành công! Vui lòng đăng nhập.
+        </div>
+        <div
+          class="error-banner"
+          id="errorBanner"
+          role="alert"
+          aria-live="assertive"
+        ></div>
 
-        <form id="loginForm" novalidate>
-          <div>
+        <form
+          id="loginForm"
+          class="auth-form"
+          action="#"
+          method="post"
+          novalidate
+        >
+          <div class="form-group">
             <label for="username">Tên đăng nhập</label>
             <input
               id="username"
@@ -36,40 +55,52 @@
               autocomplete="username"
               autofocus
             />
-            <p id="usernameError" style="color: red"></p>
+            <p class="field-help">Dùng tên đăng nhập bạn đã đăng ký.</p>
+            <p
+              id="usernameError"
+              style="color: #b00020; margin: 6px 0 0 0; font-size: 13px"
+            ></p>
           </div>
 
-          <div>
+          <div class="form-group">
             <label for="password">Mật khẩu</label>
-            <input
-              id="password"
-              type="password"
-              name="password"
-              placeholder="Nhập mật khẩu"
-              autocomplete="current-password"
-            />
-            <button type="button" id="togglePw">👁</button>
+            <div class="pw-wrap">
+              <input
+                id="password"
+                type="password"
+                name="password"
+                placeholder="Nhập mật khẩu"
+                autocomplete="current-password"
+              />
+              <button type="button" class="pw-toggle" id="togglePw">
+                Hiện
+              </button>
+            </div>
+            <p class="field-help">
+              Giữ mật khẩu an toàn, không chia sẻ cho người khác.
+            </p>
           </div>
-          <div>
-            <button type="button" id="loginBtn">Đăng nhập</button>
+
+          <div class="form-group">
+            <button type="submit" id="loginBtn" class="btn">Đăng nhập</button>
           </div>
         </form>
-        <div>
-          <p>Chưa có tài khoản? <a href="register.html">Đăng ký ngay</a></p>
-        </div>
-        <div>
-          <p>hoặc</p>
-        </div>
-        <div>
-          <p>
-            Bạn là quản trị viên?
-            <a href="admin_login.html">Đăng nhập tại đây</a>
-          </p>
-        </div>
+
+        <p class="small-link">
+          Chưa có tài khoản?
+          <a class="small-link" href="register.html">Đăng ký ngay</a>
+        </p>
+        <p class="small-link">
+          Bạn là quản trị viên?
+          <a class="small-link" href="admin_login.html">Đăng nhập tại đây</a>
+        </p>
       </div>
     </main>
     <footer>
-      <div>Copyright © 2026 Học viện công nghệ bưu chính viễn thông</div>
+      <div class="footer-inner">
+        <div>Copyright © 2026 Học viện công nghệ bưu chính viễn thông</div>
+      </div>
     </footer>
+    <script src="./auth.js"></script>
   </body>
 </html>
