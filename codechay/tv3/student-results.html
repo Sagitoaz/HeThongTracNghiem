@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kết quả sinh viên - Admin</title>
+    <link rel="stylesheet" href="admin-style.css">
+    <script src="mock-api.js"></script>
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="logo">⚙️</div>
+            <div>
+                <h1>ADMIN</h1>
+                <p>PTIT Trắc Nghiệm</p>
+            </div>
+        </div>
+        <nav class="sidebar_nav">
+            <a href="#" class="sidebar_link"><span class="sidebar_icon">📊</span> Dashboard</a>
+            <a href="#" class="sidebar_link"><span class="sidebar_icon">📝</span> Quản lý đề thi</a>
+            <a href="#" class="sidebar_link"><span class="sidebar_icon">📈</span> Thống kê</a>
+            <a href="student-results.html" class="sidebar_link sidebar_link--active"><span
+                    class="sidebar_icon">👥</span> Kết quả sinh viên</a>
+        </nav>
+        <div class="sidebar_footer">© 2026 PTIT</div>
+    </aside>
+
+    <main>
+        <header class="topbar">
+            <div class="crumb">Kết quả sinh viên</div>
+
+            <div class="top-right">
+                <div class="pill">
+                    <span class="key-icon">🔑</span>
+                    <span>Admin</span>
+                </div>
+                <button class="logout-btn" type="button">Đăng xuất</button>
+            </div>
+        </header>
+
+        <section class="content">
+            <div class="card">
+                <h2>Lọc kết quả</h2>
+                <div class="divider"></div>
+
+                <div class="filters">
+                    <div class="field">
+                        <label for="username">Tên đăng nhập</label>
+                        <input id="username" class="input" type="text" placeholder="Lọc theo tên..." />
+                    </div>
+
+                    <div class="field">
+                        <label for="exam">Đề thi</label>
+                        <select id="exam" class="select">
+                            <option>Tất cả</option>
+                            <option>Luyện tập Mạng Máy Tính</option>
+                            <option>Nhập môn AI</option>
+                            <option>Cơ sở dữ liệu</option>
+                        </select>
+                    </div>
+
+                    <button class="btn btn-delete" type="button">Xóa lọc</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 id="result-count">Danh sách kết quả</h2>
+                <div class="divider"></div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Sinh viên</th>
+                                <th>Đề thi</th>
+                                <th>Điểm</th>
+                                <th>Câu đúng</th>
+                                <th>Thời gian</th>
+                                <th>Nộp lúc</th>
+                                <th class="col-action"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="results-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <script src="students-results.js"></script>
+    </main>
+</body>

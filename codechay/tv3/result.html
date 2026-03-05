@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kết quả bài thi</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="mock-api.js"></script>
+</head>
+
+<body>
+    <header class="topbar">
+        <div class="brand">
+            <span class="logo">🎓</span>
+            <span class="brand-txt">Trắc nghiệm PTIT</span>
+        </div>
+
+        <div class="user">
+            <span class="username">user_test</span>
+            <button class="logout-btn" type="button">Đăng xuất</button>
+        </div>
+    </header>
+    <main class="container">
+
+        <!-- Hiển thị kết quả -->
+        <section class="result-card">
+            <p class="subtitle">Kết quả bài thi của bạn:</p>
+            <h1 class="score" id="rs-score">--</h1>
+            <p class="meta" id="rs-meta">Đúng: --/--</p>
+        </section>
+
+        <div class="infor-grid">
+            <section class="infor-card">
+                <p class="infor-title">BÀI THI</p>
+                <p class="infor-value" id="rs-exam">--</p>
+            </section>
+
+            <section class="infor-card">
+                <p class="infor-title">THỜI GIAN LÀM BÀI</p>
+                <p class="infor-value" id="rs-duration">--</p>
+            </section>
+
+            <section class="infor-card">
+                <p class="infor-title">NỘP LÚC</p>
+                <p class="infor-value" id="rs-submitted">--</p>
+            </section>
+        </div>
+
+        <!-- Hiển thị biểu đồ kết quả -->
+        <section class="chart-card">
+            <h2 class="chart-title">Biểu đồ kết quả</h2>
+            <div class="divider"></div>
+
+            <div class="chart-wrap">
+                <div class="chart"></div>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <span class="legend-color green"></span>
+                        <span>Đúng</span>
+                    </div>
+
+                    <div class="legend-item">
+                        <span class="legend-color red"></span>
+                        <span>Sai</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Hiển thị chi tiết từng câu hỏi -->
+        <section class="review-card">
+            <h2 class="review-title">Xem lại đáp án</h2>
+            <div class="divider"></div>
+            <div id="questions-list"></div>
+        </section>
+
+        <script src="myresult.js"></script>            
+    </main>
+</body>
