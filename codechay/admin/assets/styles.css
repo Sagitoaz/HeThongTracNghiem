@@ -41,6 +41,7 @@ header {
   gap: 12px;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
 }
 .brand {
   display: flex;
@@ -57,8 +58,9 @@ header {
 }
 nav {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
+  align-items: center;
 }
 nav a {
   padding: 8px 10px;
@@ -75,6 +77,7 @@ nav a.active {
   max-width: 1100px;
   margin: 16px auto;
   padding: 0 16px;
+  width: 100%;
 }
 
 .card {
@@ -86,12 +89,12 @@ nav a.active {
 }
 .h1 {
   margin: 0 0 10px;
-  font-size: 22px;
+  font-size: clamp(17px, 3vw, 22px);
   font-weight: 950;
 }
 .h2 {
   margin: 0 0 10px;
-  font-size: 16px;
+  font-size: clamp(14px, 2.2vw, 16px);
   font-weight: 900;
 }
 .muted {
@@ -100,15 +103,27 @@ nav a.active {
 
 .grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
 }
 .grid-3 {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 12px;
 }
+/* Cho phép grid item co lại dưới kích thước nội dung (tránh bảng kéo layout) */
+.grid > *,
+.grid-3 > * {
+  min-width: 0;
+}
+/* Tablet: 2 cột cho grid-3, giữ nguyên grid */
 @media (max-width: 900px) {
+  .grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+/* Mobile: tất cả về 1 cột */
+@media (max-width: 600px) {
   .grid,
   .grid-3 {
     grid-template-columns: 1fr;
@@ -134,6 +149,8 @@ textarea {
   border-radius: 12px;
   outline: none;
   background: #fff;
+  font-size: 16px; /* Ngăn iOS tự zoom khi focus */
+  font-family: inherit;
 }
 textarea {
   min-height: 84px;
@@ -146,6 +163,12 @@ textarea {
   padding: 10px 12px;
   border-radius: 12px;
   font-weight: 800;
+  font-size: 14px;
+  font-family: inherit;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 .btn-primary {
   background: var(--ptit-red);
@@ -195,7 +218,7 @@ tr:hover td {
 }
 
 .kpi .num {
-  font-size: 26px;
+  font-size: clamp(20px, 4vw, 26px);
   font-weight: 950;
 }
 .kpi .label {
@@ -213,11 +236,46 @@ tr:hover td {
 
 .form-2 {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap: 10px;
 }
-@media (max-width: 900px) {
+@media (max-width: 640px) {
   .form-2 {
     grid-template-columns: 1fr;
+  }
+}
+
+/* ===== Responsive: Header thu nhỏ trên mobile ===== */
+@media (max-width: 600px) {
+  .header-inner {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+  .brand {
+    font-size: 14px;
+  }
+  nav a {
+    padding: 6px 8px;
+    font-size: 13px;
+  }
+  .container {
+    margin: 10px auto;
+    padding: 0 10px;
+  }
+  .card {
+    padding: 12px 10px;
+  }
+  .btn {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+  .btn-sm {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+  th,
+  td {
+    padding: 8px 10px;
+    font-size: 13px;
   }
 }
