@@ -1,7 +1,8 @@
-// assets/pages/exam-editor.js
+// exam-editor.js — Trang tạo/sửa kỳ thi (codechay/admin/exam-editor.html)
+
 seedIfEmpty();
 
-let examId = getQueryParam("examId"); // null nếu tạo mới
+let examId = getQueryParam("examId");
 let editingQId = null;
 
 function findExam() {
@@ -13,24 +14,20 @@ function setExamForm(exam) {
   $("#pageTitle").textContent = exam
     ? `Chỉnh sửa kỳ thi (${exam.id})`
     : "Tạo kỳ thi";
-  $("#examName").value = exam?.name || "";
-  $("#examDesc").value = exam?.desc || "";
-  $("#examType").value = exam?.type || "free";
+  $("#examName").value    = exam?.name || "";
+  $("#examDesc").value    = exam?.desc || "";
+  $("#examType").value    = exam?.type || "free";
   $("#examDuration").value = exam?.durationMin ?? "";
   renderQuestions(exam?.questions || []);
 }
 
 function saveExam() {
   const name = $("#examName").value.trim();
-  if (!name) {
-    alert("Tên kỳ thi không được trống");
-    return;
-  }
+  if (!name) { alert("Tên kỳ thi không được trống"); return; }
 
-  const desc = $("#examDesc").value.trim();
-  const type = $("#examType").value;
-  const durationMin =
-    type === "timed" ? Number($("#examDuration").value || 0) : null;
+  const desc       = $("#examDesc").value.trim();
+  const type       = $("#examType").value;
+  const durationMin = type === "timed" ? Number($("#examDuration").value || 0) : null;
 
   const exams = DB.listExams();
   let exam = findExam();
@@ -47,15 +44,14 @@ function saveExam() {
   exam.durationMin = durationMin;
 
   DB.saveExams(exams);
+  // Update URL without reload
   history.replaceState({}, "", "./exam-editor.html?examId=" + examId);
   setExamForm(exam);
   alert("Đã lưu kỳ thi");
 }
 
 function renderQuestions(questions) {
-  $("#qRows").innerHTML = questions
-    .map(
-      (q, i) => `
+  $("#qRows").innerHTML = questions.map((q, i) => `
     <tr>
       <td>${i + 1}</td>
       <td>${q.text}</td>
@@ -65,18 +61,16 @@ function renderQuestions(questions) {
         <button class="btn btn-sm btn-danger" data-del-q="${q.id}">Xóa</button>
       </td>
     </tr>
-  `,
-    )
-    .join("");
+  `).join("");
 }
 
 function clearQForm() {
   editingQId = null;
-  $("#qText").value = "";
-  $("#optA").value = "";
-  $("#optB").value = "";
-  $("#optC").value = "";
-  $("#optD").value = "";
+  $("#qText").value    = "";
+  $("#optA").value     = "";
+  $("#optB").value     = "";
+  $("#optC").value     = "";
+  $("#optD").value     = "";
   $("#qCorrect").value = "0";
   $("#qHint").textContent = "Đang ở chế độ: thêm câu mới";
 }
@@ -88,27 +82,21 @@ function loadQToForm(qId) {
   if (!q) return;
 
   editingQId = qId;
-  $("#qText").value = q.text;
-  $("#optA").value = q.options[0] || "";
-  $("#optB").value = q.options[1] || "";
-  $("#optC").value = q.options[2] || "";
-  $("#optD").value = q.options[3] || "";
+  $("#qText").value    = q.text;
+  $("#optA").value     = q.options[0] || "";
+  $("#optB").value     = q.options[1] || "";
+  $("#optC").value     = q.options[2] || "";
+  $("#optD").value     = q.options[3] || "";
   $("#qCorrect").value = String(q.correctIndex);
   $("#qHint").textContent = `Đang sửa câu: ${q.id}`;
 }
 
 function saveQuestion() {
   const exam = findExam();
-  if (!exam) {
-    alert("Bạn cần Lưu kỳ thi trước");
-    return;
-  }
+  if (!exam) { alert("Bạn cần Lưu kỳ thi trước"); return; }
 
   const text = $("#qText").value.trim();
-  if (!text) {
-    alert("Câu hỏi không được trống");
-    return;
-  }
+  if (!text) { alert("Câu hỏi không được trống"); return; }
 
   const options = [
     $("#optA").value.trim(),
@@ -124,16 +112,11 @@ function saveQuestion() {
   if (editingQId) {
     const q = e.questions.find((x) => x.id === editingQId);
     if (!q) return;
-    q.text = text;
-    q.options = options;
+    q.text         = text;
+    q.options      = options;
     q.correctIndex = correctIndex;
   } else {
-    e.questions.push({
-      id: uid("Q"),
-      text,
-      options,
-      correctIndex,
-    });
+    e.questions.push({ id: uid("Q"), text, options, correctIndex });
   }
 
   DB.saveExams(exams);
@@ -143,24 +126,15 @@ function saveQuestion() {
 
 async function importExcel() {
   const exam = findExam();
-  if (!exam) {
-    alert("Bạn cần Lưu kỳ thi trước");
-    return;
-  }
+  if (!exam) { alert("Bạn cần Lưu kỳ thi trước"); return; }
 
   const file = $("#excelFile").files?.[0];
-  if (!file) {
-    alert("Chọn file Excel");
-    return;
-  }
+  if (!file) { alert("Chọn file Excel"); return; }
 
   const rows = await readExcelRows(file);
   const mine = rows.filter((r) => String(r.examId || "").trim() === exam.id);
 
-  if (!mine.length) {
-    alert("Không có dòng nào khớp examId=" + exam.id);
-    return;
-  }
+  if (!mine.length) { alert("Không có dòng nào khớp examId=" + exam.id); return; }
 
   const exams = DB.listExams();
   const e = exams.find((x) => x.id === exam.id);

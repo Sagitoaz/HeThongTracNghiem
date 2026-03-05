@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký Sinh viên - PTIT</title>
+    <link rel="stylesheet" href="./css/auth.css">
+</head>
+<body>
+    <header class="app-header">
+        <h1>Học viện Công nghệ Bưu chính Viễn thông</h1>
+        <h2>Hệ thống thi trắc nghiệm trực tuyến</h2>
+    </header>
+
+    <main class="main-content">
+        <div class="auth-container">
+            <div class="auth-header">
+                <h2>ĐĂNG KÝ TÀI KHOẢN</h2>
+                <p>đăng kí tài khoản học sinh</p>
+            </div>
+            <form class="auth-form" id="student-register-form">
+                <div class="form-group">
+                    <label for="username">Tên người dùng</label>
+                    <input type="text" id="username" placeholder="Nhập tên người dùng" required />
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="text" id="email" placeholder="Nhập địa chỉ email" required />
+                </div>
+                <div class="form-group">
+                    <label for="password">Mật khẩu</label>
+                    <input type="password" id="password" placeholder="Tạo mật khẩu" required />
+                </div>
+                <div class="form-group">
+                    <label for="confirm-password">Xác nhận mật khẩu</label>
+                    <input type="password" id="confirm-password" placeholder="Nhập lại mật khẩu" required />
+                </div>
+                <button type="submit" class="btn-submit">Đăng Ký</button>
+            </form>
+            <div class="auth-links">
+                <p>Đã có tài khoản? <a href="./login.html">Đăng nhập ngay</a></p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="app-footer">
+        <p>&copy; 2026 Học viện Công nghệ Bưu chính Viễn thông. Dành cho mục đích học tập.</p>
+    </footer>
+
+    <script src="./js/auth.js"></script>
+</body>
+</html>

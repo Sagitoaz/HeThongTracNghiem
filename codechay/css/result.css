@@ -281,6 +281,17 @@ body {
     color: #fff;
 }
 
+.option.wrong-chosen {
+    border-color: #b91c1c;
+    background: #fff1f2;
+}
+
+.option.wrong-chosen .opt-letter {
+    border-color: #b91c1c;
+    background: #b91c1c;
+    color: #fff;
+}
+
 .explain {
     margin-top: 18px;
     background: #fff7d6;

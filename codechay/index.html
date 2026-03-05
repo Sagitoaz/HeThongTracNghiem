@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách kỳ thi - PTIT Trắc Nghiệm</title>
+    <link rel="stylesheet" href="./css/exam.css">
+</head>
+<body>
+    <header class="ptit-header">
+        <div class="ptit-brand-group">
+            <span class="ptit-logo">🎓</span>
+            <div>
+                <div class="ptit-org">Học viện Công nghệ Bưu chính Viễn thông</div>
+                <div class="ptit-sys">Hệ thống Trắc Nghiệm Trực Tuyến</div>
+            </div>
+        </div>
+        <div class="ptit-user-group">
+            <span id="headerUser" class="ptit-username"></span>
+            <a href="./login.html" class="ptit-logout">Đăng xuất</a>
+        </div>
+    </header>
+
+    <div id="header">
+        <h1>Danh sách kỳ thi</h1>
+        <h3>Chọn bài thi và bắt đầu làm</h3>
+    </div>
+
+    <div id="controls">
+        <input id="searchInput" type="text" placeholder="Tìm kiếm kỳ thi">
+        <select id="statusFilter">
+            <option value="all">Tất cả</option>
+            <option value="free">Truy cập tự do</option>
+            <option value="scheduled">Theo thời gian</option>
+        </select>
+    </div>
+
+    <div id="examList"></div>
+
+    <script src="../data/mock-data.js"></script>
+    <script src="./js/app.js"></script>
+    <script>
+        const _u = JSON.parse(localStorage.getItem('ptit_user') || '{}');
+        if (_u.username) document.getElementById('headerUser').textContent = _u.username;
+    </script>
+</body>
+</html>

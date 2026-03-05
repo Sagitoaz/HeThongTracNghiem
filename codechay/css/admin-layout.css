@@ -1,0 +1,182 @@
+/*
+ * admin-layout.css – Shared admin panel sidebar + topbar layout
+ * PTIT Hệ Thống Trắc Nghiệm Trực Tuyến
+ *
+ * Used by:
+ *   tv3/student-results.html  → ../shared/admin-layout.css
+ *   tv4/admin-dashboard.html  → ../shared/admin-layout.css
+ *   tv4/exam-editor.html      → ../shared/admin-layout.css
+ *   tv4/stats.html            → ../shared/admin-layout.css
+ */
+
+/* ── Root layout: body is a full-height flex row ── */
+body {
+  margin: 0;
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  background: #f6f7fb;
+  color: #111827;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  background: #0b1022;
+  color: #fff;
+  width: 240px;
+  min-width: 240px;
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 16px 12px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.sidebar-brand {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 8px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, .08);
+  margin-bottom: 12px;
+}
+
+.sidebar-brand .logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .13);
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.sidebar-brand h1 {
+  font-size: 15px;
+  margin: 0;
+  line-height: 1.25;
+}
+
+.sidebar-brand p {
+  margin: 2px 0 0;
+  font-size: 11px;
+  opacity: .7;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+}
+
+.sidebar-link {
+  text-decoration: none;
+  color: rgba(255, 255, 255, .78);
+  padding: 9px 11px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 14px;
+  transition: background .15s;
+  border: 1px solid transparent;
+}
+
+.sidebar-link:hover {
+  background: rgba(255, 255, 255, .1);
+  color: #fff;
+}
+
+.sidebar-link.active {
+  background: rgba(200, 16, 46, .22);
+  border-color: rgba(200, 16, 46, .4);
+  color: #fff;
+  font-weight: 700;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 10px 8px;
+  border-top: 1px solid rgba(255, 255, 255, .08);
+  font-size: 11px;
+  opacity: .55;
+  text-align: center;
+}
+
+/* ── Admin main panel (scrollable, fills remaining space) ── */
+.admin-main {
+  flex: 1;
+  min-width: 0;
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Sticky topbar inside admin-main ── */
+.admin-topbar {
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 11px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  flex-shrink: 0;
+}
+
+.admin-topbar .page-title {
+  font-weight: 700;
+  font-size: 16px;
+  color: #111827;
+}
+
+.admin-topbar .topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.admin-topbar .logout-btn {
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  padding: 6px 13px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+}
+
+.admin-topbar .logout-btn:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+  border-color: #fca5a5;
+}
+
+/* ── Hide sidebar on narrow screens ── */
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+
+  body {
+    display: block;
+    height: auto;
+    overflow: auto;
+  }
+
+  .admin-main {
+    height: auto;
+    overflow: visible;
+  }
+}

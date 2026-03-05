@@ -1,3 +1,5 @@
+// student-results.js — Trang kết quả sinh viên (codechay/admin/student-results.html)
+
 function scoreBadge(score) {
     const cls = score >= 8 ? 'good' : score >= 5 ? 'mid' : 'bad';
     return `<span class="score ${cls}">${score.toFixed(1)}</span>`;
@@ -8,45 +10,23 @@ function exportPDF(r) {
     win.document.write(`
         <!DOCTYPE html>
         <html lang="vi">
-
         <head>
             <meta charset="UTF-8">
             <title>Kết quả - ${r.username}</title>
-            <link rel="stylesheet" href="pdf.css">
-            </link>
+            <link rel="stylesheet" href="../css/pdf-print.css">
         </head>
-
         <body>
             <h1>Kết quả bài thi</h1>
             <p class="sub">Xuất lúc: ${new Date().toLocaleString('vi-VN')}</p>
             <table>
-                <tr>
-                    <th>Sinh viên</th>
-                    <td>${r.username}</td>
-                </tr>
-                <tr>
-                    <th>Đề thi</th>
-                    <td>${r.exam}</td>
-                </tr>
-                <tr>
-                    <th>Điểm</th>
-                    <td class="score">${r.score.toFixed(1)}</td>
-                </tr>
-                <tr>
-                    <th>Câu đúng</th>
-                    <td>${r.correct}/${r.total}</td>
-                </tr>
-                <tr>
-                    <th>Thời gian làm bài</th>
-                    <td>${r.duration}</td>
-                </tr>
-                <tr>
-                    <th>Nộp lúc</th>
-                    <td>${r.submittedAt}</td>
-                </tr>
+                <tr><th>Sinh viên</th><td>${r.username}</td></tr>
+                <tr><th>Đề thi</th><td>${r.exam}</td></tr>
+                <tr><th>Điểm</th><td class="score">${r.score.toFixed(1)}</td></tr>
+                <tr><th>Câu đúng</th><td>${r.correct}/${r.total}</td></tr>
+                <tr><th>Thời gian làm bài</th><td>${r.duration}</td></tr>
+                <tr><th>Nộp lúc</th><td>${r.submittedAt}</td></tr>
             </table>
         </body>
-
         </html>
     `);
     win.document.close();
@@ -73,13 +53,12 @@ function renderTable(data) {
         <td class="col-action"><button class="btn btn-soft" data-index="${i}">PDF</button></td>
     </tr>`).join('');
 
-    // Lưu data hiện tại để dùng khi click PDF
     tbody._data = data;
 }
 
 function applyFilter() {
     const username = document.getElementById('username').value;
-    const exam = document.getElementById('exam').value;
+    const exam     = document.getElementById('exam').value;
     renderTable(MockAPI.filterResults(username, exam));
 }
 

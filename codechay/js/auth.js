@@ -1,8 +1,8 @@
-// auth.js – modular form validation and submission for codechay/tv1
-
-function isEmpty(value) {
-  return !value.trim();
-}
+// auth.js – form validation and submission
+// Paths are relative to the HTML file loading this script:
+//   login.html       → codechay/login.html
+//   register.html    → codechay/register.html
+//   admin/login.html → codechay/admin/login.html
 
 function validateEmailField(input) {
   const val = input.value.trim();
@@ -20,9 +20,7 @@ function validateUsernameField(input) {
   const pattern = /^[a-zA-Z0-9_\.]{3,}$/;
   if (!pattern.test(val)) {
     input.style.borderColor = "red";
-    alert(
-      "Tên đăng nhập phải có ít nhất 3 ký tự và không chứa ký tự đặc biệt.",
-    );
+    alert("Tên đăng nhập phải có ít nhất 3 ký tự và không chứa ký tự đặc biệt.");
     return false;
   }
   return true;
@@ -79,16 +77,26 @@ function handleSubmission(form) {
 
   switch (form.id) {
     case "student-login-form":
-      alert("Đăng nhập Sinh viên thành công! Chuyển đến Trang Chính...");
-      window.location.href = "index.html";
+      localStorage.setItem('ptit_user', JSON.stringify({
+        username: form.querySelector('#username').value.trim(),
+        role: 'student'
+      }));
+      // login.html is at codechay/ root → index.html is also at root
+      window.location.href = "./index.html";
       break;
+
     case "student-register-form":
       alert("Đăng ký tài khoản thành công! Vui lòng đăng nhập.");
-      window.location.href = "login.html";
+      window.location.href = "./login.html";
       break;
+
     case "admin-login-form":
-      alert("Đăng nhập Admin thành công! Chuyển đến Dashboard...");
-      window.location.href = "admin_dashboard.html";
+      localStorage.setItem('ptit_user', JSON.stringify({
+        username: form.querySelector('#username').value.trim(),
+        role: 'admin'
+      }));
+      // admin/login.html is at codechay/admin/ → dashboard.html is same folder
+      window.location.href = "./dashboard.html";
       break;
   }
 }
@@ -103,7 +111,6 @@ function attachFormListeners() {
   });
 }
 
-// initialize on DOM ready
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", attachFormListeners);
 } else {

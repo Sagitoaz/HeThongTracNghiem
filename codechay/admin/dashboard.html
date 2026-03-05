@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>PTIT Admin - Dashboard</title>
+    <link rel="stylesheet" href="../css/admin-theme.css">
+    <link rel="stylesheet" href="../css/admin-layout.css">
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <div class="logo">⚙️</div>
+            <div>
+                <h1>ADMIN</h1>
+                <p>PTIT Trắc Nghiệm</p>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="./dashboard.html" class="sidebar-link active">📊 Dashboard</a>
+            <a href="./exam-editor.html" class="sidebar-link">📝 Quản lý đề thi</a>
+            <a href="./stats.html" class="sidebar-link">📈 Thống kê</a>
+            <a href="./student-results.html" class="sidebar-link">👥 Kết quả SV</a>
+        </nav>
+        <div class="sidebar-footer">© 2026 PTIT</div>
+    </aside>
+
+    <div class="admin-main">
+        <div class="admin-topbar">
+            <span class="page-title">Dashboard</span>
+            <div class="topbar-right">
+                <span>⚙️ Admin</span>
+                <button class="logout-btn" onclick="location.href='./login.html'">Đăng xuất</button>
+            </div>
+        </div>
+
+        <main class="container">
+            <div class="grid-3">
+                <div class="card kpi">
+                    <div class="label">Tổng kỳ thi</div>
+                    <div class="num" id="kpiExams">0</div>
+                </div>
+                <div class="card kpi">
+                    <div class="label">Tổng sinh viên</div>
+                    <div class="num" id="kpiStudents">0</div>
+                </div>
+                <div class="card kpi">
+                    <div class="label">Điểm TB (tất cả lượt)</div>
+                    <div class="num" id="kpiAvg">0</div>
+                </div>
+            </div>
+
+            <div class="grid" style="margin-top:12px">
+                <section class="card">
+                    <div class="row">
+                        <h2 class="h2">Quản lý kỳ thi</h2>
+                        <div class="spacer"></div>
+                        <a class="btn btn-primary" href="./exam-editor.html">+ Tạo kỳ thi</a>
+                    </div>
+                    <div class="table-wrap" style="margin-top:10px">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Mã</th>
+                                    <th>Tên</th>
+                                    <th>Loại</th>
+                                    <th>Ngày</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="examRows"></tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <div class="row">
+                        <h2 class="h2">Quản lý người dùng (SV)</h2>
+                        <div class="spacer"></div>
+                        <button class="btn btn-primary" id="btnNewUser">+ Thêm SV</button>
+                    </div>
+                    <div class="sep"></div>
+                    <div class="form-2">
+                        <div>
+                            <label class="small">Họ tên</label>
+                            <input id="uName" placeholder="Nguyễn Văn A">
+                        </div>
+                        <div>
+                            <label class="small">Email</label>
+                            <input id="uEmail" placeholder="a@ptit.edu.vn">
+                        </div>
+                    </div>
+                    <div class="row" style="margin-top:10px">
+                        <button class="btn btn-ghost" id="btnClearUser">Xóa form</button>
+                        <div class="spacer"></div>
+                        <button class="btn btn-primary" id="btnSaveUser">Lưu SV</button>
+                    </div>
+                    <div class="muted small" id="userFormHint" style="margin-top:6px"></div>
+                    <div class="table-wrap" style="margin-top:10px">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Mã</th>
+                                    <th>Họ tên</th>
+                                    <th>Email</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="userRows"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/db.js"></script>
+    <script src="../js/seed.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/dashboard.js"></script>
+</body>
+</html>
