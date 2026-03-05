@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Admin - Kỳ thi</title>
+    <link rel="stylesheet" href="./assets/styles.css" />
+  </head>
+  <body>
+    <header>
+      <div class="header-inner">
+        <div class="brand">
+          <span class="badge">Kỳ thi</span>
+        </div>
+        <nav>
+          <a href="./admin-dashboard.html">Dashboard</a>
+          <a class="active" href="./exam-editor.html">Kỳ thi</a>
+          <a href="./stats.html">Thống kê</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="card">
+        <div class="row">
+          <h1 class="h1" id="pageTitle">Tạo kỳ thi</h1>
+          <div class="spacer"></div>
+          <button class="btn btn-ghost" id="btnNewExam">Tạo mới</button>
+          <button class="btn btn-primary" id="btnSaveExam">Lưu</button>
+        </div>
+
+        <div class="grid">
+          <div>
+            <label class="small">Tên kỳ thi</label>
+            <input id="examName" placeholder="VD: Thi thử JS cơ bản" />
+            <div style="height: 10px"></div>
+            <label class="small">Mô tả</label>
+            <textarea id="examDesc" placeholder="Mô tả ngắn..."></textarea>
+          </div>
+
+          <div>
+            <label class="small">Loại kỳ thi</label>
+            <select id="examType">
+              <option value="free">Tự do</option>
+              <option value="timed">Có thời gian</option>
+            </select>
+            <div style="height: 10px"></div>
+            <label class="small">Thời lượng (phút) nếu timed</label>
+            <input
+              id="examDuration"
+              type="number"
+              min="1"
+              placeholder="VD: 30"
+            />
+            <div class="muted small" style="margin-top: 8px">
+              Import Excel format cột: examId | question | A | B | C | D |
+              correct (A/B/C/D)
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" style="margin-top: 12px">
+        <div class="row">
+          <h2 class="h2">Câu hỏi</h2>
+          <div class="spacer"></div>
+          <input type="file" id="excelFile" accept=".xlsx,.xls" />
+          <button class="btn btn-ghost" id="btnImportExcel">
+            Import Excel
+          </button>
+        </div>
+
+        <div class="sep"></div>
+
+        <div class="grid">
+          <div>
+            <label class="small">Nội dung câu hỏi</label>
+            <textarea id="qText" placeholder="Nhập câu hỏi..."></textarea>
+          </div>
+          <div>
+            <div class="form-2">
+              <div><label class="small">A</label><input id="optA" /></div>
+              <div><label class="small">B</label><input id="optB" /></div>
+              <div><label class="small">C</label><input id="optC" /></div>
+              <div><label class="small">D</label><input id="optD" /></div>
+            </div>
+            <div style="height: 10px"></div>
+            <label class="small">Đáp án đúng</label>
+            <select id="qCorrect">
+              <option value="0">A</option>
+              <option value="1">B</option>
+              <option value="2">C</option>
+              <option value="3">D</option>
+            </select>
+            <div class="row" style="margin-top: 10px">
+              <button class="btn btn-ghost" id="btnClearQ">Xóa form</button>
+              <div class="spacer"></div>
+              <button class="btn btn-primary" id="btnSaveQ">Lưu câu</button>
+            </div>
+            <div class="muted small" id="qHint" style="margin-top: 6px"></div>
+          </div>
+        </div>
+
+        <div class="table-wrap" style="margin-top: 12px">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Câu hỏi</th>
+                <th>Đúng</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="qRows"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <script src="./assets/db.js"></script>
+    <script src="./assets/seed.js"></script>
+    <script src="./assets/utils.js"></script>
+
+    <!-- SheetJS -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="./assets/excel.js"></script>
+
+    <script src="./assets/pages/exam-editor.js"></script>
+  </body>
+</html>

@@ -1,0 +1,281 @@
+:root {
+  --ptit-red: #c8102e;
+  --ptit-red2: #a30d24;
+  --bg: #f6f7fb;
+  --card: #fff;
+  --text: #111827;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --radius: 12px;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font-family:
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Arial;
+  background: var(--bg);
+  color: var(--text);
+}
+a {
+  color: inherit;
+  text-decoration: none;
+}
+header {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.header-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 12px 16px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.brand {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-weight: 900;
+}
+.badge {
+  background: var(--ptit-red);
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+nav {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+nav a {
+  padding: 8px 10px;
+  border-radius: 10px;
+  color: var(--muted);
+}
+nav a.active {
+  background: rgba(200, 16, 46, 0.12);
+  color: var(--ptit-red);
+  font-weight: 800;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 16px auto;
+  padding: 0 16px;
+  width: 100%;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.04);
+}
+.h1 {
+  margin: 0 0 10px;
+  font-size: clamp(17px, 3vw, 22px);
+  font-weight: 950;
+}
+.h2 {
+  margin: 0 0 10px;
+  font-size: clamp(14px, 2.2vw, 16px);
+  font-weight: 900;
+}
+.muted {
+  color: var(--muted);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+/* Cho phép grid item co lại dưới kích thước nội dung (tránh bảng kéo layout) */
+.grid > *,
+.grid-3 > * {
+  min-width: 0;
+}
+/* Tablet: 2 cột cho grid-3, giữ nguyên grid */
+@media (max-width: 900px) {
+  .grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+/* Mobile: tất cả về 1 cột */
+@media (max-width: 600px) {
+  .grid,
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.spacer {
+  flex: 1;
+}
+
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  outline: none;
+  background: #fff;
+  font-size: 16px; /* Ngăn iOS tự zoom khi focus */
+  font-family: inherit;
+}
+textarea {
+  min-height: 84px;
+  resize: vertical;
+}
+
+.btn {
+  border: none;
+  cursor: pointer;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 14px;
+  font-family: inherit;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-primary {
+  background: var(--ptit-red);
+  color: #fff;
+}
+.btn-primary:hover {
+  background: var(--ptit-red2);
+}
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+}
+.btn-danger {
+  background: #ef4444;
+  color: #fff;
+}
+.btn-sm {
+  padding: 7px 10px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+.table-wrap {
+  overflow: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 760px;
+  background: #fff;
+}
+th,
+td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+th {
+  background: #fafafa;
+  font-size: 13px;
+  color: #374151;
+}
+tr:hover td {
+  background: #fcfcfd;
+}
+
+.kpi .num {
+  font-size: clamp(20px, 4vw, 26px);
+  font-weight: 950;
+}
+.kpi .label {
+  font-size: 13px;
+  color: var(--muted);
+}
+.sep {
+  height: 1px;
+  background: var(--border);
+  margin: 12px 0;
+}
+.small {
+  font-size: 13px;
+}
+
+.form-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+@media (max-width: 640px) {
+  .form-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== Responsive: Header thu nhỏ trên mobile ===== */
+@media (max-width: 600px) {
+  .header-inner {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+  .brand {
+    font-size: 14px;
+  }
+  nav a {
+    padding: 6px 8px;
+    font-size: 13px;
+  }
+  .container {
+    margin: 10px auto;
+    padding: 0 10px;
+  }
+  .card {
+    padding: 12px 10px;
+  }
+  .btn {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+  .btn-sm {
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+  th,
+  td {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+}

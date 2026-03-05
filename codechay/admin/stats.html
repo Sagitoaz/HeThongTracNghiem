@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>PTIT Admin - Thống kê</title>
+    <link rel="stylesheet" href="./assets/styles.css" />
+  </head>
+  <body>
+    <header>
+      <div class="header-inner">
+        <div class="brand">
+          <span class="badge">PTIT</span><span>Thống kê</span>
+        </div>
+        <nav>
+          <a href="./admin-dashboard.html">Dashboard</a>
+          <a href="./exam-editor.html">Kỳ thi</a>
+          <a class="active" href="./stats.html">Thống kê</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="card">
+        <div class="row">
+          <h1 class="h1">Bộ lọc</h1>
+          <div class="spacer"></div>
+          <button class="btn btn-ghost" id="btnXlsx">Xuất Excel</button>
+          <button class="btn btn-primary" id="btnPdf">Xuất PDF</button>
+        </div>
+
+        <div class="grid-3">
+          <div>
+            <label class="small">Kỳ thi</label>
+            <select id="filterExam"></select>
+          </div>
+          <div>
+            <label class="small">Từ ngày</label>
+            <input type="date" id="fromDate" />
+          </div>
+          <div>
+            <label class="small">Đến ngày</label>
+            <input type="date" id="toDate" />
+          </div>
+        </div>
+      </section>
+      =
+      <div class="grid" style="margin-top: 12px">
+        <section class="card">
+          <h2 class="h2">Tổng hợp</h2>
+          <div class="grid-3">
+            <div class="kpi">
+              <div class="label">Tổng lượt</div>
+              <div class="num" id="kpiAttempts">0</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Tỷ lệ hoàn thành</div>
+              <div class="num" id="kpiDone">0%</div>
+            </div>
+            <div class="kpi">
+              <div class="label">Điểm TB</div>
+              <div class="num" id="kpiAvg">0</div>
+            </div>
+          </div>
+          <div class="muted small" style="margin-top: 8px">
+            Dữ liệu attempts fix ở frontend (localStorage)
+          </div>
+        </section>
+        <section class="card">
+          <h2 class="h2">Phân phối điểm</h2>
+          <canvas id="chart" style="width: 100%; height: 180px"></canvas>
+          <div class="muted small">Bins: 0-2, 2-4, 4-6, 6-8, 8-10</div>
+        </section>
+      </div>
+      <section class="card" style="margin-top: 12px">
+        <h2 class="h2">Bảng kết quả</h2>
+        <div class="table-wrap" style="margin-top: 10px">
+          <table>
+            <thead>
+              <tr>
+                <th>Ngày</th>
+                <th>Kỳ thi</th>
+                <th>Sinh viên</th>
+                <th>Hoàn thành</th>
+                <th>Điểm</th>
+              </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+    <script src="./assets/db.js"></script>
+    <script src="./assets/seed.js"></script>
+    <script src="./assets/utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="./assets/excel.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js"></script>
+    <script src="./assets/pdf.js"></script>
+
+    <script src="./assets/chart.js"></script>
+    <script src="./assets/pages/stats.js"></script>
+  </body>
+</html>
