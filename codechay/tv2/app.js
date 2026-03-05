@@ -16,7 +16,7 @@ const isExamActive = (exam) =>{
 const renderExam = (list) =>{
     examList.innerHTML = ""
     
-    list.forEach(exam => {
+    list.forEach((exam, index) => {
         const card = document.createElement("div");
         card.className = "exam-card";
         examList.appendChild(card)
@@ -31,11 +31,15 @@ const renderExam = (list) =>{
         const buttonJoin = document.createElement("button");
         buttonJoin.id = "btn"
         buttonJoin.textContent = "Bắt đầu thi"
+        
         if(!isExamActive(exam)){
             
             buttonJoin.disabled = true
             
         }
+        buttonJoin.onclick = () => {
+    window.location.href = "exam.html?exam=" + index;
+};
 
         card.appendChild(h3);
         card.appendChild(p0);
