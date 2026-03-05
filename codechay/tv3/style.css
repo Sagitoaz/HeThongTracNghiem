@@ -171,15 +171,6 @@ body {
     background: #ef4444;
 }
 
-/* Nếu dùng trên điện thoại */
-
-@media (max-width: 480px) {
-    .donut {
-        width: 260px;
-        height: 260px;
-    }
-}
-
 .review-card {
     max-width: 1200px;
     margin: 26px auto;
