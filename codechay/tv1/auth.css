@@ -23,13 +23,11 @@ body {
 .app-header h1 {
   font-size: 20px;
   margin: 0;
-  text-transform: uppercase;
 }
 
 .app-header h2 {
   font-size: 14px;
   margin-top: 5px;
-  font-weight: normal;
 }
 
 .app-footer {
@@ -37,8 +35,6 @@ body {
   color: #fff;
   text-align: center;
   padding: 15px;
-  font-size: 13px;
-  margin-top: auto;
 }
 
 .main-content {
@@ -93,8 +89,6 @@ body {
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 14px;
-  outline: none;
-  transition: border-color 0.3s;
 }
 
 .form-group input:focus {
@@ -109,9 +103,7 @@ body {
   border: none;
   border-radius: 4px;
   font-size: 16px;
-  font-weight: bold;
   cursor: pointer;
-  transition: background-color 0.3s;
   margin-top: 10px;
 }
 
