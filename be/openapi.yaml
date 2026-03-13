@@ -1,0 +1,929 @@
+openapi: 3.0.3
+info:
+  title: He Thong Trac Nghiem API
+  version: 1.0.0
+  description: API specification for student/admin online exam workflows.
+servers:
+  - url: /api/v1
+tags:
+  - name: Auth
+  - name: Student
+  - name: Admin Exam
+  - name: Admin Statistics
+  - name: Admin Report
+
+security:
+  - bearerAuth: []
+
+paths:
+  /auth/register:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Register student
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Student login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /auth/admin/login:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Admin login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /exams:
+    get:
+      tags: [Student]
+      summary: List exams
+      parameters:
+        - $ref: '#/components/parameters/Keyword'
+        - $ref: '#/components/parameters/ExamType'
+        - $ref: '#/components/parameters/ExamStatus'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Sort'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedExamSummary'
+
+  /exams/{examId}:
+    get:
+      tags: [Student]
+      summary: Get exam detail
+      parameters:
+        - $ref: '#/components/parameters/ExamId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /exams/{examId}/attempts/start:
+    post:
+      tags: [Student]
+      summary: Start attempt
+      description: Free exam allows multiple attempts; scheduled exam allows one submitted attempt.
+      parameters:
+        - $ref: '#/components/parameters/ExamId'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AttemptStartResponse'
+        '409':
+          description: Conflict for business rule violation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /attempts/{attemptId}/answers:
+    put:
+      tags: [Student]
+      summary: Save answer
+      parameters:
+        - $ref: '#/components/parameters/AttemptId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SaveAnswerRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SaveAnswerResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /attempts/{attemptId}/submit:
+    post:
+      tags: [Student]
+      summary: Submit attempt
+      parameters:
+        - $ref: '#/components/parameters/AttemptId'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitAttemptRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmitAttemptResponse'
+        '409':
+          description: Attempt already submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /results/{resultId}:
+    get:
+      tags: [Student]
+      summary: Get result detail
+      parameters:
+        - $ref: '#/components/parameters/ResultId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultDetail'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /me/results:
+    get:
+      tags: [Student]
+      summary: My result history
+      parameters:
+        - $ref: '#/components/parameters/ExamIdOptional'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Sort'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedResultSummary'
+
+  /admin/exams:
+    get:
+      tags: [Admin Exam]
+      summary: Admin exam list
+      parameters:
+        - $ref: '#/components/parameters/Keyword'
+        - $ref: '#/components/parameters/ExamType'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Sort'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedExamSummary'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Admin Exam]
+      summary: Create exam
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamUpsertRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamDetail'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /admin/exams/{examId}:
+    put:
+      tags: [Admin Exam]
+      summary: Update exam
+      parameters:
+        - $ref: '#/components/parameters/ExamId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExamUpsertRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamDetail'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Admin Exam]
+      summary: Delete exam
+      parameters:
+        - $ref: '#/components/parameters/ExamId'
+      responses:
+        '204':
+          description: No Content
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /admin/exams/{examId}/questions:
+    get:
+      tags: [Admin Exam]
+      summary: List questions
+      parameters:
+        - $ref: '#/components/parameters/ExamId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Question'
+    post:
+      tags: [Admin Exam]
+      summary: Create question
+      parameters:
+        - $ref: '#/components/parameters/ExamId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuestionUpsertRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Question'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /admin/exams/{examId}/questions/{questionId}:
+    put:
+      tags: [Admin Exam]
+      summary: Update question
+      parameters:
+        - $ref: '#/components/parameters/ExamId'
+        - $ref: '#/components/parameters/QuestionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuestionUpsertRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Question'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Admin Exam]
+      summary: Delete question
+      parameters:
+        - $ref: '#/components/parameters/ExamId'
+        - $ref: '#/components/parameters/QuestionId'
+      responses:
+        '204':
+          description: No Content
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /admin/exams/{examId}/questions/import:
+    post:
+      tags: [Admin Report]
+      summary: Import questions from Excel
+      parameters:
+        - $ref: '#/components/parameters/ExamId'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Import summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportSummary'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /admin/exams/{examId}/results/export:
+    get:
+      tags: [Admin Report]
+      summary: Export exam results
+      parameters:
+        - $ref: '#/components/parameters/ExamId'
+        - $ref: '#/components/parameters/ExportFormat'
+        - $ref: '#/components/parameters/FromDate'
+        - $ref: '#/components/parameters/ToDate'
+      responses:
+        '200':
+          description: File stream
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+
+  /admin/students/{studentId}/results:
+    get:
+      tags: [Admin Statistics]
+      summary: List student results
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+        - $ref: '#/components/parameters/ExamIdOptional'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/Size'
+        - $ref: '#/components/parameters/Sort'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedResultSummary'
+
+  /admin/students/{studentId}/results/export:
+    get:
+      tags: [Admin Report]
+      summary: Export student results
+      parameters:
+        - $ref: '#/components/parameters/StudentId'
+        - $ref: '#/components/parameters/ExportFormat'
+      responses:
+        '200':
+          description: File stream
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+
+  /admin/statistics/overview:
+    get:
+      tags: [Admin Statistics]
+      summary: Overall statistics
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OverviewStats'
+
+  /admin/statistics/exams/{examId}:
+    get:
+      tags: [Admin Statistics]
+      summary: Statistics by exam
+      parameters:
+        - $ref: '#/components/parameters/ExamId'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamStats'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    ExamId:
+      in: path
+      name: examId
+      required: true
+      schema: { type: string }
+    AttemptId:
+      in: path
+      name: attemptId
+      required: true
+      schema: { type: string }
+    ResultId:
+      in: path
+      name: resultId
+      required: true
+      schema: { type: string }
+    QuestionId:
+      in: path
+      name: questionId
+      required: true
+      schema: { type: string }
+    StudentId:
+      in: path
+      name: studentId
+      required: true
+      schema: { type: string }
+    Keyword:
+      in: query
+      name: keyword
+      required: false
+      schema: { type: string, maxLength: 100 }
+    ExamType:
+      in: query
+      name: type
+      required: false
+      schema:
+        type: string
+        enum: [free, scheduled]
+    ExamStatus:
+      in: query
+      name: status
+      required: false
+      schema:
+        type: string
+        enum: [available, locked]
+    ExamIdOptional:
+      in: query
+      name: examId
+      required: false
+      schema: { type: string }
+    Page:
+      in: query
+      name: page
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+    Size:
+      in: query
+      name: size
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    Sort:
+      in: query
+      name: sort
+      required: false
+      schema:
+        type: string
+        example: createdAt,desc
+    ExportFormat:
+      in: query
+      name: format
+      required: true
+      schema:
+        type: string
+        enum: [pdf, xlsx]
+    FromDate:
+      in: query
+      name: fromDate
+      required: false
+      schema:
+        type: string
+        format: date
+    ToDate:
+      in: query
+      name: toDate
+      required: false
+      schema:
+        type: string
+        format: date
+
+  schemas:
+    RegisterRequest:
+      type: object
+      required: [username, email, password, confirmPassword]
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 50
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+          maxLength: 72
+        confirmPassword:
+          type: string
+          minLength: 8
+          maxLength: 72
+
+    LoginRequest:
+      type: object
+      required: [usernameOrEmail, password]
+      properties:
+        usernameOrEmail:
+          type: string
+          minLength: 3
+          maxLength: 100
+        password:
+          type: string
+          minLength: 8
+          maxLength: 72
+
+    UserProfile:
+      type: object
+      properties:
+        id: { type: string }
+        username: { type: string }
+        email: { type: string, format: email }
+        role: { type: string, enum: [STUDENT, ADMIN] }
+        createdAt: { type: string, format: date-time }
+
+    AuthResponse:
+      type: object
+      properties:
+        accessToken: { type: string }
+        tokenType: { type: string, example: Bearer }
+        expiresIn: { type: integer, example: 3600 }
+        user:
+          $ref: '#/components/schemas/UserProfile'
+
+    ExamSummary:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        type: { type: string, enum: [free, scheduled] }
+        durationMinutes: { type: integer }
+        questionCount: { type: integer }
+        startTime:
+          type: string
+          format: date-time
+          nullable: true
+        isAvailable: { type: boolean }
+
+    PagedExamSummary:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExamSummary'
+        page: { type: integer }
+        size: { type: integer }
+        totalElements: { type: integer }
+        totalPages: { type: integer }
+
+    QuestionPublic:
+      type: object
+      properties:
+        id: { type: string }
+        text: { type: string }
+        options:
+          type: array
+          minItems: 4
+          maxItems: 4
+          items:
+            type: string
+
+    ExamDetail:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        description: { type: string }
+        type: { type: string, enum: [free, scheduled] }
+        durationMinutes: { type: integer }
+        startTime:
+          type: string
+          format: date-time
+          nullable: true
+        questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuestionPublic'
+
+    AttemptStartResponse:
+      type: object
+      properties:
+        attemptId: { type: string }
+        examId: { type: string }
+        userId: { type: string }
+        startedAt: { type: string, format: date-time }
+        durationMinutes: { type: integer }
+        remainingSeconds: { type: integer }
+
+    SaveAnswerRequest:
+      type: object
+      required: [questionId, selectedOptionIndex]
+      properties:
+        questionId: { type: string }
+        selectedOptionIndex:
+          type: integer
+          minimum: 0
+          maximum: 3
+
+    SaveAnswerResponse:
+      type: object
+      properties:
+        attemptId: { type: string }
+        saved: { type: boolean }
+        updatedAt: { type: string, format: date-time }
+
+    SubmitAttemptRequest:
+      type: object
+      properties:
+        autoSubmit:
+          type: boolean
+          default: false
+
+    SubmitAttemptResponse:
+      type: object
+      properties:
+        resultId: { type: string }
+        examId: { type: string }
+        userId: { type: string }
+        score: { type: number, format: double }
+        correct: { type: integer }
+        total: { type: integer }
+        submittedAt: { type: string, format: date-time }
+        durationSeconds: { type: integer }
+
+    ResultAnswerDetail:
+      type: object
+      properties:
+        questionId: { type: string }
+        selectedOptionIndex:
+          type: integer
+          minimum: 0
+          maximum: 3
+        correctOptionIndex:
+          type: integer
+          minimum: 0
+          maximum: 3
+        isCorrect: { type: boolean }
+        explanation: { type: string }
+
+    ResultDetail:
+      type: object
+      properties:
+        id: { type: string }
+        examId: { type: string }
+        examName: { type: string }
+        score: { type: number, format: double }
+        correct: { type: integer }
+        total: { type: integer }
+        answers:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResultAnswerDetail'
+
+    ResultSummary:
+      type: object
+      properties:
+        id: { type: string }
+        examId: { type: string }
+        examName: { type: string }
+        userId: { type: string }
+        username: { type: string }
+        score: { type: number, format: double }
+        correct: { type: integer }
+        total: { type: integer }
+        submittedAt: { type: string, format: date-time }
+        durationSeconds: { type: integer }
+
+    PagedResultSummary:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResultSummary'
+        page: { type: integer }
+        size: { type: integer }
+        totalElements: { type: integer }
+        totalPages: { type: integer }
+
+    ExamUpsertRequest:
+      type: object
+      required: [name, type, durationMinutes]
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 255
+        description:
+          type: string
+          maxLength: 2000
+        type:
+          type: string
+          enum: [free, scheduled]
+        durationMinutes:
+          type: integer
+          minimum: 1
+          maximum: 300
+        startTime:
+          type: string
+          format: date-time
+          nullable: true
+
+    Question:
+      type: object
+      properties:
+        id: { type: string }
+        text: { type: string }
+        options:
+          type: array
+          minItems: 4
+          maxItems: 4
+          items:
+            type: string
+        correctOptionIndex:
+          type: integer
+          minimum: 0
+          maximum: 3
+        explanation:
+          type: string
+
+    QuestionUpsertRequest:
+      type: object
+      required: [text, options, correctOptionIndex]
+      properties:
+        text:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        options:
+          type: array
+          minItems: 4
+          maxItems: 4
+          items:
+            type: string
+            minLength: 1
+            maxLength: 500
+        correctOptionIndex:
+          type: integer
+          minimum: 0
+          maximum: 3
+        explanation:
+          type: string
+          maxLength: 2000
+
+    ImportSummary:
+      type: object
+      properties:
+        importedCount: { type: integer }
+        failedCount: { type: integer }
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              row: { type: integer }
+              message: { type: string }
+
+    OverviewStats:
+      type: object
+      properties:
+        totalStudents: { type: integer }
+        totalExams: { type: integer }
+        totalAttempts: { type: integer }
+        averageScore: { type: number, format: double }
+
+    ExamStats:
+      type: object
+      properties:
+        examId: { type: string }
+        attempts: { type: integer }
+        averageScore: { type: number, format: double }
+        scoreDistribution:
+          type: array
+          minItems: 5
+          maxItems: 5
+          items:
+            type: integer
+
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+        error:
+          type: string
+        code:
+          type: string
+        message:
+          type: string
+        path:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Validation or malformed request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Missing or invalid JWT
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Role not allowed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
