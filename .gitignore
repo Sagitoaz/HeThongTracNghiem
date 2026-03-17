@@ -2,3 +2,9 @@
 .github/
 aidlc-docs/
 AGENTS.md
+be/api-service/.env
+be/api-service/target/
+*.log
+.vscode/
+.idea/
+*.iml
