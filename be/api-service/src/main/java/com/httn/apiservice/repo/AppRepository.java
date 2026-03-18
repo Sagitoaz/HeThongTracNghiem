@@ -187,12 +187,12 @@ public class AppRepository {
                 join public.exams e on e.id=r.exam_id
                 join public.profiles p on p.user_id=r.student_id
                 where r.student_id=cast(? as uuid)
-                  and (? is null or r.exam_id=cast(? as uuid))
+                  and (cast(? as uuid) is null or r.exam_id=cast(? as uuid))
                 order by """ + " " + order + " limit ? offset ?", userId, examId, examId, size, page * size);
     }
 
     public int countMyResults(String userId, String examId) {
-        return jdbc.queryForObject("select count(*) from public.results where student_id=cast(? as uuid) and (? is null or exam_id=cast(? as uuid))", Integer.class, userId, examId, examId);
+            return jdbc.queryForObject("select count(*) from public.results where student_id=cast(? as uuid) and (cast(? as uuid) is null or exam_id=cast(? as uuid))", Integer.class, userId, examId, examId);
     }
 
     public List<Map<String, Object>> examResults(String examId, int page, int size, String sort) {
