@@ -5,13 +5,40 @@ Muc tieu: chia deu 24 API chinh thanh 4 phan, moi nguoi 6 API, de tu code lai ba
 Pham vi API tinh de chia: Auth (3) + Student (7) + Admin (14) = 24 API.
 Khong tinh endpoint health (`/actuator/health`) vao chia viec.
 
-## 1) Nguyen tac lam bai (ban hoc tap, code don gian)
+## 0) Nen tang chung da setup san (KHONG CAN MOI NGUOI TU TAO LAI)
+Da tao san trong `be/codechay`:
+- Maven Wrapper: `mvnw`, `mvnw.cmd`, `.mvn/wrapper/maven-wrapper.properties`
+- Dependency chung: Spring Boot Web, Validation, Security, OAuth2 Resource Server, JDBC, PostgreSQL, POI, OpenPDF
+- Config chung: `src/main/resources/application.yml`, `.env.example`
+- Core chung: `common/`, `config/`, `shared/`
+
+Moi nguoi code chung tren mot nen tang, khong tu y doi framework/dependency.
+
+## 1) CAY THU MUC BAT BUOC THEO OWNER
+Xem chi tiet tai: `be/codechay/TEAM-OWNERSHIP-TREE.md`
+
+Tom tat:
+- Thanh vien 1 chi duoc tao file trong:
+  - `src/main/java/com/httn/codechay/member1/auth/`
+  - `src/main/java/com/httn/codechay/member1/examread/`
+- Thanh vien 2 chi duoc tao file trong:
+  - `src/main/java/com/httn/codechay/member2/adminexam/`
+  - `src/main/java/com/httn/codechay/member2/question/`
+- Thanh vien 3 chi duoc tao file trong:
+  - `src/main/java/com/httn/codechay/member3/attempt/`
+  - `src/main/java/com/httn/codechay/member3/result/`
+- Thanh vien 4 chi duoc tao file trong:
+  - `src/main/java/com/httn/codechay/member4/adminadvanced/`
+
+Cac thu muc dung chung (`common`, `config`, `shared`) khong sua tuy tien.
+
+## 2) Nguyen tac lam bai (ban hoc tap, code don gian)
 - Uu tien dung duoc, ro rang, de hieu; khong can toi uu hardcore.
 - Moi API can dat duoc: route dung, input validation co ban, query DB dung bang, response dung format JSON.
 - Co the code don gian hon code mau (it lop hon), nhung giu contract endpoint.
 - Neu bi tac o cho nao, tham khao nhanh code trong `be/api-service/src/main/java`.
 
-## 2) Bang DB can dung (tham chieu)
+## 3) Bang DB can dung (tham chieu)
 - `public.profiles`
 - `public.exams`
 - `public.questions`
@@ -23,11 +50,14 @@ Khong tinh endpoint health (`/actuator/health`) vao chia viec.
 - `public.export_jobs`
 - `public.audit_logs`
 
-## 3) Chia viec deu 4 nguoi (6 API moi nguoi)
+## 4) Chia viec deu 4 nguoi (6 API moi nguoi)
 
 ## Thanh vien 1 - Auth + Exam Read Core (6 API)
-Muc tieu: dung endpoint dang nhap/dang ky va doc de thi.
+Package owner:
+- `member1/auth`
+- `member1/examread`
 
+API:
 1. `POST /api/v1/auth/register`
 2. `POST /api/v1/auth/login`
 3. `POST /api/v1/auth/admin/login`
@@ -38,16 +68,14 @@ Muc tieu: dung endpoint dang nhap/dang ky va doc de thi.
 Bang lien quan:
 - `profiles`, `exams`, `questions`
 
-Dau ra bat buoc:
-- Dang ky/dang nhap tra token va thong tin user.
-- Danh sach exam co filter/page basic.
-- Chi tiet exam co danh sach cau hoi.
-
 ---
 
 ## Thanh vien 2 - Admin Quan Ly Exam + Question CRUD (6 API)
-Muc tieu: quan ly de thi va cau hoi (tao/sua/xoa).
+Package owner:
+- `member2/adminexam`
+- `member2/question`
 
+API:
 1. `POST /api/v1/admin/exams`
 2. `PUT /api/v1/admin/exams/{examId}`
 3. `DELETE /api/v1/admin/exams/{examId}`
@@ -56,18 +84,16 @@ Muc tieu: quan ly de thi va cau hoi (tao/sua/xoa).
 6. `PUT /api/v1/admin/exams/{examId}/questions/{questionId}`
 
 Bang lien quan:
-- `exams`, `questions`, `audit_logs` (neu muon log thay doi)
-
-Dau ra bat buoc:
-- CRUD exam chay on dinh.
-- CRUD question chay on dinh.
-- Validation co ban: duration, options 4 dap an, correctOptionIndex.
+- `exams`, `questions`, `audit_logs`
 
 ---
 
 ## Thanh vien 3 - Student Attempt + Result Flow (6 API)
-Muc tieu: flow lam bai cua sinh vien tu start den xem ket qua.
+Package owner:
+- `member3/attempt`
+- `member3/result`
 
+API:
 1. `POST /api/v1/exams/{examId}/attempts/start`
 2. `PUT /api/v1/attempts/{attemptId}/answers`
 3. `POST /api/v1/attempts/{attemptId}/submit`
@@ -78,17 +104,13 @@ Muc tieu: flow lam bai cua sinh vien tu start den xem ket qua.
 Bang lien quan:
 - `attempts`, `attempt_answers`, `results`, `questions`, `exams`
 
-Dau ra bat buoc:
-- Start attempt tao du lieu hop le.
-- Save answer cap nhat duoc theo `attemptId + questionId`.
-- Submit tinh diem co ban va luu `results`.
-- Lay lich su ket qua theo user/student.
-
 ---
 
 ## Thanh vien 4 - Admin Delete/Import/Export/Statistics (6 API)
-Muc tieu: cac API admin nang cao.
+Package owner:
+- `member4/adminadvanced`
 
+API:
 1. `DELETE /api/v1/admin/exams/{examId}/questions/{questionId}`
 2. `POST /api/v1/admin/exams/{examId}/questions/import`
 3. `GET /api/v1/admin/exams/{examId}/results/export`
@@ -99,31 +121,27 @@ Muc tieu: cac API admin nang cao.
 Bang lien quan:
 - `questions`, `results`, `attempts`, `export_jobs`, `import_jobs`, `import_job_errors`
 
-Dau ra bat buoc:
-- Xoa question chay dung va safe.
-- Import file xu ly duoc case co loi.
-- Export PDF/XLSX muc don gian (co file tra ve la dat).
-- 2 API statistics tra tong hop dung.
+## 5) Quy uoc tao class de merge de dang
+Moi API tao toi thieu:
+1. `XxxController.java`
+2. `XxxService.java`
+3. `XxxRepository.java`
 
-## 4) Cach ghep code de tranh conflict
+Neu can request/response object thi tao them `dto/` ben trong package owner.
+
+## 6) Cach ghep code de tranh conflict
 - Moi nguoi tao 1 branch rieng:
   - `feature/member1-auth-exam-read`
   - `feature/member2-admin-exam-question`
   - `feature/member3-student-attempt-result`
   - `feature/member4-admin-import-export-stats`
-- Chia thu muc code theo module de conflict it:
-  - Member 1: `auth`, mot phan read exam
-  - Member 2: `admin` exam/question CRUD
-  - Member 3: `student` attempt/result
-  - Member 4: `admin` import/export/statistics
-- Merge theo thu tu de:
+- Merge theo thu tu:
   1) Member 1
   2) Member 2
   3) Member 3
   4) Member 4
 
-## 5) Definition of Done cho tung nguoi
-Moi thanh vien duoc tinh hoan thanh khi du 6 dieu kien:
+## 7) Definition of Done cho tung nguoi
 1. Du 6 API duoc assign da map route dung.
 2. Postman goi duoc status code hop ly (200/201/204).
 3. Case loi co ban tra 400/401/403/404 hop ly.
@@ -131,18 +149,15 @@ Moi thanh vien duoc tinh hoan thanh khi du 6 dieu kien:
 5. Co file note nhanh cac query/chuc nang da lam.
 6. Chay local qua `mvnw` khong vo app.
 
-## 6) Ke hoach de team lam trong 2-3 buoi
+## 8) Ke hoach de team lam trong 2-3 buoi
 - Buoi 1: setup moi truong + scaffold route + ket noi DB
 - Buoi 2: code logic API chinh theo phan cong
 - Buoi 3: test Postman, fix loi, ghep code
 
-## 7) Tai lieu nen mo song song khi code
+## 9) Tai lieu nen mo song song khi code
+- `be/codechay/README.md`
+- `be/codechay/TEAM-OWNERSHIP-TREE.md`
 - `be/api-service/postman/HUONG-DAN-TEST-FULL-API.md`
 - `be/api-list.md`
 - `be/supabase/migrations/*.sql`
 - `be/api-service/src/main/java/...` (code mau)
-
-## 8) Ghi chu quan trong
-- Day la bai hoc tap: uu tien dung flow va hieu ban chat API.
-- Neu mot API kho (import/export), lam ban toi gian truoc, nang cap sau.
-- Giu response format on dinh de FE de nhung.
