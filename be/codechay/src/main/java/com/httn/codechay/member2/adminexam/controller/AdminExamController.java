@@ -15,7 +15,7 @@ import com.httn.codechay.member2.adminexam.service.AdminExamService;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api/v1/admin/exams")
+@RequestMapping("/admin/exams")
 public class AdminExamController {
     private final AdminExamService service;
 
