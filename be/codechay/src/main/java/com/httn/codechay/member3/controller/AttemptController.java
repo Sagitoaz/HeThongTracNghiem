@@ -15,6 +15,7 @@ import com.httn.codechay.common.ApiException;
 import com.httn.codechay.member3.dto.SaveAnswerRequest;
 import com.httn.codechay.member3.dto.SaveAnswerResponse;
 import com.httn.codechay.member3.dto.StartAttemptResponse;
+import com.httn.codechay.member3.dto.SubmitAttemptResponse;
 import com.httn.codechay.member3.service.AttemptService;
 
 import jakarta.validation.Valid;
@@ -54,6 +55,19 @@ public class AttemptController {
         }
 
         SaveAnswerResponse response = attemptService.saveAnswer(attemptId, studentId, req);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/attempts/{attemptId}/submit")
+    public ResponseEntity<SubmitAttemptResponse> submitAttempt(
+            @PathVariable String attemptId,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        String studentId = jwt == null ? null : jwt.getSubject();
+        if (studentId == null || studentId.isBlank()) {
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "401", "Missing user identity");    
+        }
+        SubmitAttemptResponse response = attemptService.submitAttempt(attemptId, studentId);
         return ResponseEntity.ok(response);
     }
 }
