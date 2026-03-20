@@ -1,6 +1,7 @@
 package com.httn.codechay.member3.service;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
 
@@ -22,18 +23,13 @@ public class AttemptService {
     }
 
     public StartAttemptResponse startAttempt(String examId, String studentId){
-        Map<String, Object> exam = attemptRepository.getExamForStart(examId);
-        if (exam == null) {
+        Map<String, Object> attempt = attemptRepository.createAttempt(examId, studentId);
+        if (attempt == null) {
             throw new ApiException(HttpStatus.NOT_FOUND, "EXAM_NOT_FOUND", "Exam not found");
         }
 
-        Map<String, Object> attempt = attemptRepository.createAttempt(examId, studentId);
-        if (attempt == null) {
-            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "ATTEMPT_CREATE_FAILED", "Failed to create attempt");
-        }
-
-        int durationMinutes = ((Number) exam.get("durationMinutes")).intValue();
-        Timestamp startedAt = (Timestamp) attempt.get("startedAt");
+        int durationMinutes = ((Number) attempt.get("durationMinutes")).intValue();
+        Instant startedAt = ((Timestamp) attempt.get("startedAt")).toInstant();
 
         return new StartAttemptResponse(
             (String) attempt.get("id"),
@@ -46,7 +42,7 @@ public class AttemptService {
     }
 
     public SaveAnswerResponse saveAnswer(String attemptId, String studentId, SaveAnswerRequest req) {
-        Map<String, Object> attempt = attemptRepository.getAttemptById(attemptId);
+        Map<String, Object> attempt = attemptRepository.getSaveAnswerContext(attemptId, req.questionId());
         if (attempt == null) {
             throw new ApiException(HttpStatus.NOT_FOUND, "ATTEMPT_NOT_FOUND", "Attempt not found");
         }
@@ -61,8 +57,7 @@ public class AttemptService {
             throw new ApiException(HttpStatus.CONFLICT, "ATTEMPT_ALREADY_SUBMITTED", "Attempt is already submitted");
         }
 
-        String examId = (String) attempt.get("examId");
-        boolean questionExists = attemptRepository.existsQuestionInExam(req.questionId(), examId);
+        boolean questionExists = Boolean.TRUE.equals(attempt.get("questionExists"));
         if (!questionExists) {
             throw new ApiException(HttpStatus.NOT_FOUND, "QUESTION_NOT_FOUND", "Question not found in this exam");
         }
@@ -75,7 +70,16 @@ public class AttemptService {
         return new SaveAnswerResponse(
                 attemptId,
                 true,
-                (Timestamp) saved.get("updatedAt")
+                ((Timestamp) saved.get("updatedAt")).toInstant()
         );
     }
+
+    public void submitAttempt(String attemptId, String studentId) {
+        Map<String, Object> attempt = attemptRepository.getAttemptById(attemptId);
+        if (attempt == null) {
+            throw new ApiException(HttpStatus.NOT_FOUND, "ATTEMPT_NOT_FOUND", "Attempt not found");
+        }
+
+    }
+    
 }

@@ -1,12 +1,12 @@
 package com.httn.codechay.member3.dto;
 
-import java.sql.Timestamp;
+import java.time.Instant;
 
 public record StartAttemptResponse(
     String attemptId,
     String examId,
     String studentId,
-    Timestamp startedAt,
+    Instant startedAt,
     int durationMinutes,
     int remainingSeconds
 ) {}
