@@ -55,5 +55,16 @@ public class AuthRepository {
         }
         return rows.get(0);
     }
-}
 
+    public void upsertProfile(String userId, String username, String email, String role) {
+        String sql = """
+                insert into public.profiles(user_id, username, email, role)
+                values (cast(? as uuid), ?, ?, ?)
+                on conflict (user_id) do update
+                set username = excluded.username,
+                    email = excluded.email,
+                    role = excluded.role
+                """;
+        jdbcTemplate.update(sql, userId, username, email, role);
+    }
+}

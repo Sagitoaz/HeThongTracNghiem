@@ -1,3 +1,4 @@
+
 package com.httn.codechay.member1.auth;
 
 import com.httn.codechay.member1.auth.dto.LoginRequest;
@@ -35,4 +36,3 @@ public class AuthController {
         return authService.login(request, true);
     }
 }
-

@@ -27,16 +27,19 @@ public class AuthService {
     private final AuthRepository repository;
     private final String supabaseUrl;
     private final String anonKey;
+    private final String serviceRoleKey;
 
     public AuthService(
             @Value("${app.supabase.url:}") String supabaseUrl,
             @Value("${app.supabase.anon-key:}") String anonKey,
+            @Value("${app.supabase.service-role-key:}") String serviceRoleKey,
             AuthRepository repository
     ) {
         this.webClient = WebClient.builder().build();
         this.repository = repository;
         this.supabaseUrl = supabaseUrl;
         this.anonKey = anonKey;
+        this.serviceRoleKey = serviceRoleKey;
     }
 
     @SuppressWarnings("null")
@@ -47,9 +50,75 @@ public class AuthService {
             throw new ApiException(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", "confirmPassword must match password");
         }
 
-        SupabaseSignUpResponse response;
+        SupabaseUser createdUser = hasServiceRoleConfig()
+                ? registerViaAdminApi(request)
+                : registerViaSignUpApi(request);
+
+        if (createdUser == null || createdUser.id == null || createdUser.id.isBlank()) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", "Cannot create user");
+        }
+
+        Map<String, Object> profile = repository.findProfileByUserId(createdUser.id);
+        if (profile == null) {
+            try {
+                repository.upsertProfile(createdUser.id, request.username(), request.email(), "student");
+                profile = repository.findProfileByUserId(createdUser.id);
+            } catch (Exception ex) {
+                log.warn("Profile sync fallback failed for userId={}", createdUser.id);
+            }
+        }
+
+        if (profile == null) {
+            log.info("Register success for userId={}, profile pending sync", createdUser.id);
+            return new UserProfile(createdUser.id, request.username(), request.email(), "STUDENT", Instant.now());
+        }
+
+        UserProfile result = toUserProfile(profile);
+        log.info("Register success for userId={}", result.id());
+        return result;
+    }
+
+    private boolean hasServiceRoleConfig() {
+        return serviceRoleKey != null && !serviceRoleKey.isBlank();
+    }
+
+    private SupabaseUser registerViaAdminApi(RegisterRequest request) {
         try {
-            response = webClient.post()
+            SupabaseAdminCreateUserResponse response = webClient.post()
+                    .uri(supabaseUrl + "/auth/v1/admin/users")
+                    .header("apikey", serviceRoleKey)
+                    .header("Authorization", "Bearer " + serviceRoleKey)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .bodyValue(Map.of(
+                            "email", request.email(),
+                            "password", request.password(),
+                            "email_confirm", true,
+                            "user_metadata", Map.of("username", request.username(), "role", "student")
+                    ))
+                    .retrieve()
+                    .bodyToMono(SupabaseAdminCreateUserResponse.class)
+                    .block();
+            if (response == null) {
+                return null;
+            }
+            if (response.user != null) {
+                return response.user;
+            }
+            SupabaseUser user = new SupabaseUser();
+            user.id = response.id;
+            user.email = response.email;
+            return user;
+        } catch (WebClientResponseException ex) {
+            throw mapRegisterException(ex);
+        } catch (Exception ex) {
+            log.error("Register(admin) failed due to upstream error: {}", ex.getClass().getSimpleName());
+            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR", "Auth provider is unavailable");
+        }
+    }
+
+    private SupabaseUser registerViaSignUpApi(RegisterRequest request) {
+        try {
+            SupabaseSignUpResponse response = webClient.post()
                     .uri(supabaseUrl + "/auth/v1/signup")
                     .header("apikey", anonKey)
                     .contentType(MediaType.APPLICATION_JSON)
@@ -61,33 +130,29 @@ public class AuthService {
                     .retrieve()
                     .bodyToMono(SupabaseSignUpResponse.class)
                     .block();
+            return response == null ? null : response.user;
         } catch (WebClientResponseException ex) {
-            log.warn("Register failed at auth provider with status {}", ex.getStatusCode().value());
-            throw new ApiException(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", "Cannot create user");
+            throw mapRegisterException(ex);
         } catch (Exception ex) {
-            log.error("Register failed due to upstream error: {}", ex.getClass().getSimpleName());
+            log.error("Register(signup) failed due to upstream error: {}", ex.getClass().getSimpleName());
             throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR", "Auth provider is unavailable");
         }
+    }
 
-        if (response == null || response.user == null || response.user.id == null || response.user.id.isBlank()) {
-            throw new ApiException(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", "Cannot create user");
+    private ApiException mapRegisterException(WebClientResponseException ex) {
+        String body = ex.getResponseBodyAsString();
+        String safeBody = body == null ? "" : body;
+        int status = ex.getStatusCode().value();
+        if (status == 429 || safeBody.contains("over_email_send_rate_limit")) {
+            log.warn("Register blocked by auth provider rate limit");
+            return new ApiException(HttpStatus.TOO_MANY_REQUESTS, "RATE_LIMIT", "Email rate limit exceeded. Please retry later.");
         }
-
-        Map<String, Object> profile = repository.findProfileByUserId(response.user.id);
-        if (profile == null) {
-            log.info("Register success for userId={}, profile pending sync", response.user.id);
-            return new UserProfile(
-                    response.user.id,
-                    request.username(),
-                    request.email(),
-                    "STUDENT",
-                    Instant.now()
-            );
+        if (safeBody.contains("already")) {
+            log.warn("Register failed: email may already exist");
+            return new ApiException(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", "Email already exists");
         }
-
-        UserProfile result = toUserProfile(profile);
-        log.info("Register success for userId={}", result.id());
-        return result;
+        log.warn("Register failed at auth provider with status {}", status);
+        return new ApiException(HttpStatus.BAD_REQUEST, "VALIDATION_ERROR", "Cannot create user");
     }
 
     public AuthResponse login(LoginRequest request, boolean adminOnly) {
@@ -173,6 +238,12 @@ public class AuthService {
         public SupabaseUser user;
     }
 
+    static class SupabaseAdminCreateUserResponse {
+        public String id;
+        public String email;
+        public SupabaseUser user;
+    }
+
     static class SupabaseTokenResponse {
         @JsonProperty("access_token")
         public String accessToken;
@@ -188,4 +259,3 @@ public class AuthService {
         public String email;
     }
 }
-
