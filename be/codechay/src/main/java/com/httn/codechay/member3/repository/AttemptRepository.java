@@ -93,7 +93,7 @@ public class AttemptRepository {
         return jdbcTemplate.queryForList(sql, examId);
     }
 
-    public List<Map<String, Object>> getAnswersByAttemptId(String attemptId) {
+    public List<Map<String, Object>> getSubmittedAnswersByAttemptId(String attemptId) {
         String sql = """
                 select question_id::text as "questionId", selected_option_index as "selectedOptionIndex"
                 from public.attempt_answers
