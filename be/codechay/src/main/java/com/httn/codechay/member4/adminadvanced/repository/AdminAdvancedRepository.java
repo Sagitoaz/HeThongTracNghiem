@@ -16,6 +16,15 @@ public class AdminAdvancedRepository {
         this.jdbc = jdbc;
     }
 
+    public boolean isAdminUser(String userId) {
+        Integer count = jdbc.queryForObject(
+                "SELECT COUNT(*) FROM public.profiles WHERE user_id = cast(? as uuid) AND role = cast('admin' as app_role)",
+                Integer.class,
+                userId
+        );
+        return count != null && count > 0;
+    }
+
         // API #1: DELETE /admin/exams/{examId}/questions/{questionId}
     public boolean examExists(String examId) {
         Integer count = jdbc.queryForObject(

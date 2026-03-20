@@ -3,7 +3,6 @@ package com.httn.codechay.member4.adminadvanced.service;
 import com.httn.codechay.common.ApiException;
 import com.httn.codechay.common.ErrorCode;
 import com.httn.codechay.member4.adminadvanced.repository.AdminAdvancedRepository;
-import com.httn.codechay.security.CurrentUser;
 import com.lowagie.text.Document;
 import com.lowagie.text.Paragraph;
 import com.lowagie.text.pdf.PdfWriter;
@@ -268,7 +267,7 @@ public class AdminAdvancedService {
         if (userId == null || userId.isBlank()) {
             throw new ApiException(HttpStatus.UNAUTHORIZED, ErrorCode.UNAUTHORIZED, "Unauthorized");
         }
-        if (!CurrentUser.isAdmin()) {
+        if (!repo.isAdminUser(userId)) {
             throw new ApiException(HttpStatus.FORBIDDEN, ErrorCode.FORBIDDEN, "Admin role required");
         }
     }
