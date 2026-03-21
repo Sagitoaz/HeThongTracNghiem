@@ -123,4 +123,21 @@ public class AdminController {
     public Object examStats(@PathVariable String examId) {
         return service.examStats(examId);
     }
+
+    @GetMapping("/exams/{examId}/results")
+    public Object examResults(@PathVariable String examId,
+                              @RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "20") int size,
+                              @RequestParam(defaultValue = "submittedAt,desc") String sort) {
+        return service.examResults(examId, page, Math.min(size, 100), sort);
+    }
+
+    @GetMapping("/results")
+    public Object adminResults(@RequestParam(required = false) String keyword,
+                               @RequestParam(required = false) String examId,
+                               @RequestParam(defaultValue = "0") int page,
+                               @RequestParam(defaultValue = "20") int size,
+                               @RequestParam(defaultValue = "submittedAt,desc") String sort) {
+        return service.adminResults(keyword, examId, page, Math.min(size, 100), sort);
+    }
 }
