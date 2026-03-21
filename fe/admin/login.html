@@ -74,12 +74,10 @@
   </footer>
 
   <!-- Scripts — note: relative paths from admin/ directory -->
-  <script src="../data/mock-data.js"></script>
-  <script src="../js/data-service.js"></script>
+  <script src="../js/api-client.js"></script>
   <script src="../js/auth.js"></script>
   <script>
     // ─── Init ─────────────────────────────────────────────────
-    DataService.init();
 
     // Redirect if already logged in as admin
     if (AuthService.isAdminLoggedIn()) {
@@ -120,7 +118,7 @@
     }
 
     // ─── Form submission ──────────────────────────────────────
-    document.getElementById('adminLoginForm').addEventListener('submit', function (e) {
+    document.getElementById('adminLoginForm').addEventListener('submit', async function (e) {
       e.preventDefault();
       clearError();
 
@@ -144,7 +142,7 @@
 
       if (!valid) return;
 
-      var result = AuthService.loginAdmin(username, password);
+      var result = await AuthService.loginAdmin(username, password);
       if (result.success) {
         window.location.href = 'dashboard.html';
       } else {
@@ -154,3 +152,4 @@
   </script>
 </body>
 </html>
+

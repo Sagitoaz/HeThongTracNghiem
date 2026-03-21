@@ -211,6 +211,46 @@ public class AppRepository {
                 order by """ + " " + order + " limit ? offset ?", examId, size, page * size);
     }
 
+    public int countExamResults(String examId) {
+        return jdbc.queryForObject(
+                "select count(*) from public.results where exam_id=cast(? as uuid)",
+                Integer.class,
+                examId
+        );
+    }
+
+    public List<Map<String, Object>> adminResults(String keyword, String examId, int page, int size, String sort) {
+        String order = buildOrderBy(sort, "submitted_at desc", Map.of(
+                "submittedAt", "submitted_at",
+                "score", "score"
+        ));
+        return jdbc.queryForList("""
+                select r.id::text as id, r.exam_id::text as examId, e.name as examName, r.student_id::text as userId,
+                       p.username, p.email, r.score, r.correct_count as correct, r.total_count as total,
+                       r.submitted_at as submittedAt, r.duration_seconds as durationSeconds
+                from public.results r
+                join public.exams e on e.id=r.exam_id
+                join public.profiles p on p.user_id=r.student_id
+                where (cast(? as text) is null
+                       or p.username ilike '%'||cast(? as text)||'%'
+                       or p.email ilike '%'||cast(? as text)||'%')
+                  and (cast(? as uuid) is null or r.exam_id=cast(? as uuid))
+                order by """ + " " + order + " limit ? offset ?",
+                keyword, keyword, keyword, examId, examId, size, page * size);
+    }
+
+    public int countAdminResults(String keyword, String examId) {
+        return jdbc.queryForObject("""
+                select count(*)
+                from public.results r
+                join public.profiles p on p.user_id=r.student_id
+                where (cast(? as text) is null
+                       or p.username ilike '%'||cast(? as text)||'%'
+                       or p.email ilike '%'||cast(? as text)||'%')
+                  and (cast(? as uuid) is null or r.exam_id=cast(? as uuid))
+                """, Integer.class, keyword, keyword, keyword, examId, examId);
+    }
+
     private String buildOrderBy(String sort, String defaultOrder, Map<String, String> allowedFields) {
         if (sort == null || sort.isBlank()) {
             return defaultOrder;

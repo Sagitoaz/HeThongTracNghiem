@@ -1,77 +1,90 @@
-/**
- * dashboard.js — Admin dashboard controller
- * Depends on: DataService, AuthService
+﻿/**
+ * dashboard.js - Admin dashboard via backend API.
+ * Depends on: AuthService, ApiClient
  */
 (function () {
-  DataService.init();
   AuthService.guardAdminPage();
 
   var admin = AuthService.getCurrentAdmin();
-  document.getElementById('adminUsername').textContent = '🔑 ' + admin.username;
+  document.getElementById('adminUsername').textContent = '\uD83D\uDC64 ' + admin.username;
 
   document.getElementById('btnLogout').addEventListener('click', function () {
     AuthService.logoutAdmin();
   });
 
-  // Sidebar toggle (mobile)
   document.getElementById('sidebarToggle').addEventListener('click', function () {
     document.getElementById('sidebar').classList.toggle('sidebar--open');
   });
 
-  // ─── Stats ──────────────────────────────────────────────
+  init().catch(function (err) {
+    alert('Khong tai duoc dashboard: ' + (err.message || err));
+  });
 
-  var users = DataService.getUsers().filter(function (u) { return u.role === 'user'; });
-  var exams = DataService.getExams();
-  var results = DataService.getResults();
+  async function init() {
+    var overview = await ApiClient.request('/admin/statistics/overview');
 
-  var avgScore = results.length === 0 ? 0 :
-    parseFloat((results.reduce(function (s, r) { return s + r.score; }, 0) / results.length).toFixed(1));
+    var statsData = [
+      { icon: '\uD83D\uDC65', label: 'Sinh vien', value: overview.totalStudents || 0 },
+      { icon: '\uD83D\uDC65', label: 'De thi', value: overview.totalExams || 0 },
+      { icon: '\uD83D\uDC65', label: 'Luot nop', value: overview.totalAttempts || 0 },
+      { icon: '\u2B50', label: 'Diem TB', value: Number(overview.averageScore || 0).toFixed(1) + '/10' },
+    ];
 
-  var statsData = [
-    { icon: '👥', label: 'Sinh viên', value: users.length },
-    { icon: '📝', label: 'Đề thi', value: exams.length },
-    { icon: '📋', label: 'Lượt nộp', value: results.length },
-    { icon: '⭐', label: 'Điểm TB', value: avgScore + '/10' },
-  ];
-
-  var statsHtml = statsData.map(function (s) {
-    return '<div class="admin-stat">' +
-      '<div class="admin-stat__icon">' + s.icon + '</div>' +
-      '<div class="admin-stat__value">' + s.value + '</div>' +
-      '<div class="admin-stat__label">' + escHtml(s.label) + '</div>' +
+    document.getElementById('statsGrid').innerHTML = statsData.map(function (s) {
+      return '<div class="admin-stat">' +
+        '<div class="admin-stat__icon">' + s.icon + '</div>' +
+        '<div class="admin-stat__value">' + s.value + '</div>' +
+        '<div class="admin-stat__label">' + escHtml(s.label) + '</div>' +
       '</div>';
-  }).join('');
-  document.getElementById('statsGrid').innerHTML = statsHtml;
+    }).join('');
 
-  // ─── Recent submissions ─────────────────────────────────
+    await renderRecentResults();
+  }
 
-  var recent = results.slice().sort(function (a, b) {
-    return new Date(b.submittedAt) - new Date(a.submittedAt);
-  }).slice(0, 10);
+  async function renderRecentResults() {
+    var tbody = document.getElementById('recentTbody');
+    try {
+      var res = await ApiClient.request('/admin/results?page=0&size=10');
+      var rows = (res.content || []).slice().sort(function (a, b) {
+        return new Date(b.submittedAt || b.submittedat || 0) - new Date(a.submittedAt || a.submittedat || 0);
+      });
 
-  var tbodyHtml = recent.length === 0
-    ? '<tr><td colspan="5" class="text-center text-sec" style="padding:20px">Chưa có lượt nộp bài nào.</td></tr>'
-    : recent.map(function (r) {
-        var scoreClass = r.score >= 8 ? 'text-success' : r.score >= 5 ? '' : 'text-danger';
+      if (!rows.length) {
+        tbody.innerHTML =
+          '<tr><td colspan="5" class="text-center text-sec" style="padding:20px">Chua co luot nop nao.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = rows.map(function (r) {
+        var cls = Number(r.score || 0) >= 8 ? 'text-success' : Number(r.score || 0) >= 5 ? '' : 'text-danger';
         return '<tr>' +
-          '<td>' + escHtml(r.username) + '</td>' +
-          '<td>' + escHtml(r.examName) + '</td>' +
-          '<td><strong class="' + scoreClass + '">' + r.score.toFixed(1) + '</strong></td>' +
-          '<td>' + r.correct + '/' + r.total + '</td>' +
-          '<td>' + formatDateTime(r.submittedAt) + '</td>' +
+          '<td>' + escHtml(r.username || '') + '</td>' +
+          '<td>' + escHtml(r.examName || '') + '</td>' +
+          '<td><strong class="' + cls + '">' + Number(r.score || 0).toFixed(1) + '</strong></td>' +
+          '<td>' + Number(r.correct || 0) + '/' + Number(r.total || 0) + '</td>' +
+          '<td>' + formatDateTime(r.submittedAt || r.submittedat) + '</td>' +
           '</tr>';
       }).join('');
-
-  document.getElementById('recentTbody').innerHTML = tbodyHtml;
-
-  // ─── Utils ────────────────────────────────────────────
+    } catch (err) {
+      tbody.innerHTML =
+        '<tr><td colspan="5" class="text-center text-sec" style="padding:20px">Loi tai luot nop gan day: ' +
+        escHtml(err.message || String(err)) + '</td></tr>';
+    }
+  }
 
   function escHtml(str) {
-    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
+
   function formatDateTime(iso) {
+    if (!iso) return '-';
     return new Date(iso).toLocaleString('vi-VN', {
-      day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     });
   }
 })();
+

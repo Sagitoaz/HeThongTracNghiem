@@ -1,23 +1,27 @@
-/**
- * main.js — Index page controller (exam list)
- * Depends on: DataService, AuthService, ExamService
+﻿/**
+ * main.js - Index page controller (exam list) via backend.
+ * Depends on: AuthService, ExamService
  */
 (function () {
-  // ─── Init ──────────────────────────────────────────────
-  DataService.init();
   AuthService.guardUserPage();
 
   var currentUser = AuthService.getCurrentUser();
-  document.getElementById('navUsername').textContent = '👤 ' + currentUser.username;
+  document.getElementById('navUsername').textContent = '\uD83D\uDC64 ' + currentUser.username;
 
   document.getElementById('btnLogout').addEventListener('click', function () {
     AuthService.logout();
   });
 
-  // ─── Render ────────────────────────────────────────────
+  var allExams = [];
 
-  var allExams = ExamService.getAvailableExams();
-  renderExams(allExams);
+  init().catch(function (err) {
+    alert('Khong tai duoc danh sach de thi: ' + (err.message || err));
+  });
+
+  async function init() {
+    allExams = await ExamService.getAvailableExams();
+    renderExams(allExams);
+  }
 
   function renderExams(exams) {
     var grid = document.getElementById('examGrid');
@@ -42,40 +46,37 @@
 
       var scheduledLine = '';
       if (exam.type === 'scheduled' && exam.startTime && !available) {
-        scheduledLine = '<div class="exam-card__scheduled-time">🕐 Bắt đầu lúc: ' +
+        scheduledLine = '<div class="exam-card__scheduled-time">\uD83D\uDD50 Bat dau luc: ' +
           formatDateTime(exam.startTime) + '</div>';
       }
 
-      var qCount = Array.isArray(exam.questions) ? exam.questions.length : 0;
+      var qCount = exam.questionCount || (Array.isArray(exam.questions) ? exam.questions.length : 0);
+      var duration = exam.durationMinutes || exam.duration || 0;
 
       card.innerHTML =
         '<div class="exam-card__meta">' + typeBadge + '</div>' +
         '<h3 class="exam-card__name">' + escHtml(exam.name) + '</h3>' +
         '<p class="exam-card__desc">' + escHtml(exam.description || '') + '</p>' +
         '<div class="exam-card__info">' +
-          '<span class="exam-card__info-item">⏱ ' + exam.duration + ' phút</span>' +
-          '<span class="exam-card__info-item">📝 ' + qCount + ' câu</span>' +
+          '<span class="exam-card__info-item">\u23F1 ' + duration + ' phut</span>' +
+          '<span class="exam-card__info-item">\uD83D\uDCDD ' + qCount + ' cau</span>' +
         '</div>' +
         scheduledLine +
         '<button class="btn btn--primary" data-exam-id="' + exam.id + '"' +
           (available ? '' : ' disabled') + '>' +
-          (available ? 'Bắt đầu làm bài' : '🔒 Chưa đến giờ') +
+          (available ? 'Bat dau lam bai' : 'Chua den gio') +
         '</button>';
 
       grid.appendChild(card);
     });
 
-    // Attach click handlers
     grid.querySelectorAll('[data-exam-id]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var examId = this.getAttribute('data-exam-id');
-        ExamService.startExam(examId, currentUser.id);
         window.location.href = 'exam.html?id=' + encodeURIComponent(examId);
       });
     });
   }
-
-  // ─── Search ────────────────────────────────────────────
 
   document.getElementById('searchInput').addEventListener('input', function () {
     var q = this.value.trim().toLowerCase();
@@ -84,13 +85,11 @@
       return;
     }
     var filtered = allExams.filter(function (e) {
-      return e.name.toLowerCase().includes(q) ||
+      return (e.name || '').toLowerCase().includes(q) ||
         (e.description || '').toLowerCase().includes(q);
     });
     renderExams(filtered);
   });
-
-  // ─── Utils ────────────────────────────────────────────
 
   function escHtml(str) {
     return String(str)
@@ -108,3 +107,5 @@
     });
   }
 })();
+
+

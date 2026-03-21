@@ -1,84 +1,133 @@
-// assets/pages/stats.js
-seedIfEmpty();
+// stats.js - thong ke admin qua backend API
 
-function loadExamOptions() {
-  const exams = DB.listExams();
-  $("#filterExam").innerHTML = `
-    <option value="all">Tất cả</option>
-    ${exams.map((e) => `<option value="${e.id}">${e.name} (${e.id})</option>`).join("")}
+let examMap = [];
+
+function requireAdmin() {
+  const u = JSON.parse(localStorage.getItem('ptit_user') || 'null');
+  const t = ApiClient.getToken();
+  if (!u || u.role !== 'admin' || !t) {
+    window.location.href = './login.html';
+    return null;
+  }
+  return u;
+}
+
+async function loadExamOptions() {
+  const data = await ApiClient.request('/admin/exams?page=0&size=200');
+  examMap = data.content || [];
+  $('#filterExam').innerHTML = `
+    <option value="all">Tat ca</option>
+    ${examMap.map((e) => `<option value="${e.id}">${escapeHtml(e.name)}</option>`).join('')}
   `;
 }
 
-function applyFilter() {
-  const examId = $("#filterExam").value;
-  const from = $("#fromDate").value || "0000-01-01";
-  const to = $("#toDate").value || "9999-12-31";
+async function applyFilter() {
+  const examId = $('#filterExam').value;
 
-  const exams = DB.listExams();
-  const users = DB.listUsers();
-  const attempts = DB.listAttempts();
+  const overview = await ApiClient.request('/admin/statistics/overview');
+  $('#kpiAttempts').textContent = overview.totalAttempts || 0;
+  $('#kpiAvg').textContent = Number(overview.averageScore || 0).toFixed(2);
+  $('#kpiDone').textContent = '-';
 
-  const filtered = attempts.filter((a) => {
-    const okExam = examId === "all" || a.examId === examId;
-    const okDate = a.date >= from && a.date <= to;
-    return okExam && okDate;
-  });
+  if (examId === 'all') {
+    $('#rows').innerHTML = '<tr><td colspan="5">Chon mot de thi de xem thong ke chi tiet.</td></tr>';
+    drawHistogram($('#chart'), []);
+    return [];
+  }
 
-  // KPI
-  $("#kpiAttempts").textContent = filtered.length;
-  const done = filtered.filter((a) => a.completed).length;
-  $("#kpiDone").textContent = filtered.length
-    ? Math.round((done * 100) / filtered.length) + "%"
-    : "0%";
-  $("#kpiAvg").textContent = avg(filtered.map((a) => a.score)).toFixed(2);
+  const stats = await ApiClient.request('/admin/statistics/exams/' + encodeURIComponent(examId));
+  $('#kpiAttempts').textContent = stats.attempts || 0;
+  $('#kpiAvg').textContent = Number(stats.averageScore || 0).toFixed(2);
+  $('#kpiDone').textContent = '-';
 
-  // Table
-  $("#rows").innerHTML = filtered
-    .map((a) => {
-      const ex = exams.find((e) => e.id === a.examId);
-      const u = users.find((u) => u.id === a.userId);
-      return `
-      <tr>
-        <td>${a.date}</td>
-        <td>${ex?.name || a.examId}</td>
-        <td>${u?.name || a.userId}</td>
-        <td>${a.completed ? "✅" : "❌"}</td>
-        <td><b>${a.score}</b></td>
-      </tr>
-    `;
-    })
-    .join("");
+  const dist = stats.scoreDistribution || [0, 0, 0, 0, 0];
+  const scoreList = [];
+  for (let i = 0; i < dist.length; i++) {
+    for (let j = 0; j < dist[i]; j++) {
+      scoreList.push(i * 2 + 1);
+    }
+  }
+  drawHistogram($('#chart'), scoreList);
 
-  // Chart
-  drawHistogram(
-    $("#chart"),
-    filtered.map((a) => a.score),
-  );
+  const ex = examMap.find((x) => x.id === examId);
+  $('#rows').innerHTML = `
+    <tr>
+      <td>-</td>
+      <td>${escapeHtml(ex?.name || examId)}</td>
+      <td>-</td>
+      <td>-</td>
+      <td><b>${Number(stats.averageScore || 0).toFixed(2)}</b></td>
+    </tr>
+  `;
 
-  return filtered;
+  return [];
 }
 
-$("#filterExam").addEventListener("change", applyFilter);
-$("#fromDate").addEventListener("change", applyFilter);
-$("#toDate").addEventListener("change", applyFilter);
+$('#filterExam').addEventListener('change', () => { applyFilter().catch(showErr); });
+$('#fromDate').addEventListener('change', () => { applyFilter().catch(showErr); });
+$('#toDate').addEventListener('change', () => { applyFilter().catch(showErr); });
 
-$("#btnXlsx").addEventListener("click", () => {
-  const filtered = applyFilter();
-  exportToExcel("ptit_report.xlsx", filtered);
+$('#btnXlsx').addEventListener('click', async () => {
+  const examId = $('#filterExam').value;
+  if (examId === 'all') {
+    alert('Hay chon mot de thi de xuat Excel.');
+    return;
+  }
+  try {
+    const blob = await ApiClient.request(`/admin/exams/${encodeURIComponent(examId)}/results/export?format=xlsx`);
+    downloadBlob(blob, `exam-${examId}-results.xlsx`);
+  } catch (err) {
+    showErr(err);
+  }
 });
 
-$("#btnPdf").addEventListener("click", () => {
-  const filtered = applyFilter();
-  const head = ["Date", "ExamId", "UserId", "Completed", "Score"];
-  const body = filtered.map((a) => [
-    a.date,
-    a.examId,
-    a.userId,
-    a.completed ? "Yes" : "No",
-    String(a.score),
-  ]);
-  exportToPDF("ptit_report.pdf", "PTIT - Bao cao thong ke", head, body);
+$('#btnPdf').addEventListener('click', async () => {
+  const examId = $('#filterExam').value;
+  if (examId === 'all') {
+    alert('Hay chon mot de thi de xuat PDF.');
+    return;
+  }
+  try {
+    const blob = await ApiClient.request(`/admin/exams/${encodeURIComponent(examId)}/results/export?format=pdf`);
+    downloadBlob(blob, `exam-${examId}-results.pdf`);
+  } catch (err) {
+    showErr(err);
+  }
 });
 
-loadExamOptions();
-applyFilter();
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function showErr(err) {
+  alert('Khong tai duoc thong ke: ' + (err.message || err));
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+async function init() {
+  if (!requireAdmin()) return;
+  await loadExamOptions();
+  await applyFilter();
+}
+
+document.querySelector('.logout-btn').addEventListener('click', function (e) {
+  e.preventDefault();
+  ApiClient.clearAuth();
+  window.location.href = './login.html';
+});
+
+init().catch(showErr);

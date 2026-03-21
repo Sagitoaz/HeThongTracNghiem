@@ -232,6 +232,31 @@ public class ApiService {
         return repo.examResults(examId, 0, 1000, "submittedAt,desc");
     }
 
+    public Map<String, Object> examResults(String examId, int page, int size, String sort) {
+        List<Map<String, Object>> content = repo.examResults(examId, page, size, sort);
+        int total = repo.countExamResults(examId);
+        return Map.of(
+                "content", content,
+                "page", page,
+                "size", size,
+                "totalElements", total,
+                "totalPages", (int) Math.ceil(total / (double) Math.max(1, size))
+        );
+    }
+
+    public Map<String, Object> adminResults(String keyword, String examId, int page, int size, String sort) {
+        String normalizedKeyword = (keyword == null || keyword.isBlank()) ? null : keyword.trim();
+        List<Map<String, Object>> content = repo.adminResults(normalizedKeyword, examId, page, size, sort);
+        int total = repo.countAdminResults(normalizedKeyword, examId);
+        return Map.of(
+                "content", content,
+                "page", page,
+                "size", size,
+                "totalElements", total,
+                "totalPages", (int) Math.ceil(total / (double) Math.max(1, size))
+        );
+    }
+
     public Map<String, Object> overviewStats() {
         return repo.overviewStats();
     }

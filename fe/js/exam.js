@@ -1,16 +1,13 @@
-/**
- * exam.js — Exam taking page controller
- * Depends on: DataService, AuthService, ExamService
+﻿/**
+ * exam.js - Exam taking page via backend API.
+ * Depends on: AuthService, ExamService
  */
 (function () {
-  // ─── Init ──────────────────────────────────────────────
-  DataService.init();
   AuthService.guardUserPage();
 
   var currentUser = AuthService.getCurrentUser();
-  document.getElementById('navUsername').textContent = '👤 ' + currentUser.username;
+  document.getElementById('navUsername').textContent = '\uD83D\uDC64 ' + currentUser.username;
 
-  // Parse examId from URL
   var params = new URLSearchParams(window.location.search);
   var examId = params.get('id');
   if (!examId) {
@@ -18,50 +15,50 @@
     return;
   }
 
-  // Load exam
-  var exam = DataService.getExamById(examId);
-  if (!exam || !exam.questions || exam.questions.length === 0) {
-    window.location.href = 'index.html';
-    return;
-  }
-
-  // Start / resume session
-  var session = ExamService.startExam(examId, currentUser.id);
-  if (!session) {
-    window.location.href = 'index.html';
-    return;
-  }
-
-  var questions = exam.questions;
-  var totalQ = questions.length;
+  var exam = null;
+  var session = null;
+  var questions = [];
+  var totalQ = 0;
   var currentIndex = 0;
-
-  // ─── Render setup ──────────────────────────────────────
-
-  document.getElementById('examTitle').textContent = exam.name;
-  document.getElementById('examSubtitle').textContent =
-    totalQ + ' câu hỏi • ' + exam.duration + ' phút';
-
-  renderQuestion(currentIndex);
-  buildNavGrid();
-  startTimer();
-
-  // ─── Timer ────────────────────────────────────────────
-
   var timerInterval = null;
+
+  init().catch(function (err) {
+    alert('Khong tai duoc de thi: ' + (err.message || err));
+    window.location.href = 'index.html';
+  });
+
+  async function init() {
+    exam = await ExamService.getExamDetail(examId);
+    questions = exam.questions || [];
+    if (!questions.length) {
+      window.location.href = 'index.html';
+      return;
+    }
+
+    session = await ExamService.startExam(examId, currentUser.id);
+    totalQ = questions.length;
+
+    document.getElementById('examTitle').textContent = exam.name;
+    document.getElementById('examSubtitle').textContent =
+      totalQ + ' cau hoi • ' + (exam.durationMinutes || 0) + ' phut';
+
+    renderQuestion(currentIndex);
+    buildNavGrid();
+    startTimer();
+  }
 
   function startTimer() {
     function tick() {
       session = ExamService.getExamSession();
-      var totalSec = exam.duration * 60;
+      if (!session) return;
+      var totalSec = (session.durationMinutes || 30) * 60;
       var elapsed = Math.floor((Date.now() - session.startTime) / 1000);
       var remaining = Math.max(0, totalSec - elapsed);
 
       var m = Math.floor(remaining / 60);
       var s = remaining % 60;
-      var display = pad(m) + ':' + pad(s);
       var el = document.getElementById('timerDisplay');
-      el.textContent = display;
+      el.textContent = pad(m) + ':' + pad(s);
 
       if (remaining <= 60) {
         el.classList.remove('exam-timer__value--warning');
@@ -76,13 +73,12 @@
         doSubmit(true);
       }
     }
+
     tick();
     timerInterval = setInterval(tick, 1000);
   }
 
   function pad(n) { return n < 10 ? '0' + n : String(n); }
-
-  // ─── Render Question ───────────────────────────────────
 
   function renderQuestion(idx) {
     currentIndex = idx;
@@ -90,14 +86,14 @@
     session = ExamService.getExamSession();
     var answers = session ? session.answers : [];
 
-    document.getElementById('questionNumber').textContent =
-      'Câu ' + (idx + 1) + ' / ' + totalQ;
+    document.getElementById('questionNumber').textContent = 'Cau ' + (idx + 1) + ' / ' + totalQ;
     document.getElementById('questionText').textContent = q.text;
 
     var optList = document.getElementById('optionsList');
     optList.innerHTML = '';
     var labels = ['A', 'B', 'C', 'D'];
-    q.options.forEach(function (opt, i) {
+
+    (q.options || []).forEach(function (opt, i) {
       var selected = answers[idx] === i;
       var item = document.createElement('div');
       item.className = 'option-item' + (selected ? ' option-item--selected' : '');
@@ -112,15 +108,19 @@
     });
 
     document.getElementById('progressLabel').textContent =
-      'Đã trả lời: ' + countAnswered() + '/' + totalQ;
+      'Da tra loi: ' + countAnswered() + '/' + totalQ;
     document.getElementById('btnPrev').disabled = idx === 0;
     document.getElementById('btnNext').disabled = idx === totalQ - 1;
     updateNavGrid();
   }
 
-  function selectAnswer(qIdx, optIdx) {
-    ExamService.saveAnswer(qIdx, optIdx);
-    renderQuestion(qIdx);
+  async function selectAnswer(qIdx, optIdx) {
+    try {
+      await ExamService.saveAnswer(qIdx, optIdx);
+      renderQuestion(qIdx);
+    } catch (err) {
+      alert('Khong luu duoc dap an: ' + (err.message || err));
+    }
   }
 
   function countAnswered() {
@@ -128,8 +128,6 @@
     if (!session) return 0;
     return session.answers.filter(function (a) { return a >= 0; }).length;
   }
-
-  // ─── Question Navigator ─────────────────────────────────
 
   function buildNavGrid() {
     var grid = document.getElementById('qNavGrid');
@@ -158,48 +156,44 @@
     });
   }
 
-  // ─── Navigation buttons ─────────────────────────────────
-
   document.getElementById('btnPrev').addEventListener('click', function () {
     if (currentIndex > 0) renderQuestion(currentIndex - 1);
   });
+
   document.getElementById('btnNext').addEventListener('click', function () {
     if (currentIndex < totalQ - 1) renderQuestion(currentIndex + 1);
   });
 
-  // ─── Submit ───────────────────────────────────────────
-
   document.getElementById('btnSubmit').addEventListener('click', function () {
-    var answered = countAnswered();
-    var unanswered = totalQ - answered;
+    var unanswered = totalQ - countAnswered();
     var msg = unanswered > 0
-      ? 'Bạn còn ' + unanswered + ' câu chưa trả lời. Bạn có chắc muốn nộp bài?'
-      : 'Bạn đã trả lời tất cả ' + totalQ + ' câu. Xác nhận nộp bài?';
+      ? 'Ban con ' + unanswered + ' cau chua tra loi. Ban co chac muon nop bai?'
+      : 'Ban da tra loi tat ca ' + totalQ + ' cau. Xac nhan nop bai?';
     document.getElementById('submitModalBody').textContent = msg;
     document.getElementById('submitModal').classList.remove('hidden');
   });
 
   document.getElementById('closeModal').addEventListener('click', closeModal);
   document.getElementById('cancelSubmit').addEventListener('click', closeModal);
-  document.getElementById('confirmSubmit').addEventListener('click', function () {
-    doSubmit(false);
-  });
+  document.getElementById('confirmSubmit').addEventListener('click', function () { doSubmit(false); });
 
   function closeModal() {
     document.getElementById('submitModal').classList.add('hidden');
   }
 
-  function doSubmit(autoSubmit) {
+  async function doSubmit() {
     clearInterval(timerInterval);
-    var result = ExamService.submitExam();
-    if (result) {
-      window.location.href = 'result.html?id=' + encodeURIComponent(result.id);
-    } else {
-      window.location.href = 'index.html';
+    try {
+      var result = await ExamService.submitExam();
+      if (result && result.id) {
+        window.location.href = 'result.html?id=' + encodeURIComponent(result.id);
+      } else {
+        window.location.href = 'index.html';
+      }
+    } catch (err) {
+      alert('Nop bai that bai: ' + (err.message || err));
     }
   }
-
-  // ─── Utils ────────────────────────────────────────────
 
   function escHtml(str) {
     return String(str)
@@ -209,3 +203,4 @@
       .replace(/"/g, '&quot;');
   }
 })();
+

@@ -1,81 +1,118 @@
-// student-results.js — Trang kết quả sinh viên (codechay/admin/student-results.html)
+// student-results.js - ket qua sinh vien qua backend API
 
-function scoreBadge(score) {
-    const cls = score >= 8 ? 'good' : score >= 5 ? 'mid' : 'bad';
-    return `<span class="score ${cls}">${score.toFixed(1)}</span>`;
+function requireAdmin() {
+  const u = JSON.parse(localStorage.getItem('ptit_user') || 'null');
+  const t = ApiClient.getToken();
+  if (!u || u.role !== 'admin' || !t) {
+    window.location.href = './login.html';
+    return null;
+  }
+  return u;
 }
 
-function exportPDF(r) {
-    const win = window.open('', '_blank');
-    win.document.write(`
-        <!DOCTYPE html>
-        <html lang="vi">
-        <head>
-            <meta charset="UTF-8">
-            <title>Kết quả - ${r.username}</title>
-            <link rel="stylesheet" href="../css/pdf-print.css">
-        </head>
-        <body>
-            <h1>Kết quả bài thi</h1>
-            <p class="sub">Xuất lúc: ${new Date().toLocaleString('vi-VN')}</p>
-            <table>
-                <tr><th>Sinh viên</th><td>${r.username}</td></tr>
-                <tr><th>Đề thi</th><td>${r.exam}</td></tr>
-                <tr><th>Điểm</th><td class="score">${r.score.toFixed(1)}</td></tr>
-                <tr><th>Câu đúng</th><td>${r.correct}/${r.total}</td></tr>
-                <tr><th>Thời gian làm bài</th><td>${r.duration}</td></tr>
-                <tr><th>Nộp lúc</th><td>${r.submittedAt}</td></tr>
-            </table>
-        </body>
-        </html>
-    `);
-    win.document.close();
-    win.focus();
-    win.print();
+function scoreBadge(score) {
+  const cls = score >= 8 ? 'good' : score >= 5 ? 'mid' : 'bad';
+  return `<span class="score ${cls}">${Number(score || 0).toFixed(1)}</span>`;
 }
 
 function renderTable(data) {
-    const tbody = document.getElementById('results-tbody');
-    document.getElementById('result-count').textContent = `Danh sách kết quả (${data.length})`;
+  const tbody = document.getElementById('results-tbody');
+  document.getElementById('result-count').textContent = `Danh sach ket qua (${data.length})`;
 
-    if (data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:#9ca3af;padding:24px">Không có kết quả nào.</td></tr>`;
-        return;
-    }
+  if (!data.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#9ca3af;padding:24px">Khong co ket qua nao.</td></tr>';
+    return;
+  }
 
-    tbody.innerHTML = data.map((r, i) => `<tr>
-        <td>${r.username}</td>
-        <td>${r.exam}</td>
-        <td>${scoreBadge(r.score)}</td>
-        <td>${r.correct}/${r.total}</td>
-        <td>${r.duration}</td>
-        <td>${r.submittedAt}</td>
-        <td class="col-action"><button class="btn btn-soft" data-index="${i}">PDF</button></td>
-    </tr>`).join('');
+  tbody.innerHTML = data.map((r) => `<tr>
+    <td>${escapeHtml(r.username || '')}</td>
+    <td>${escapeHtml(r.examName || '')}</td>
+    <td>${scoreBadge(r.score)}</td>
+    <td>${r.correct || 0}/${r.total || 0}</td>
+    <td>${Math.floor((r.durationSeconds || 0) / 60)}m ${(r.durationSeconds || 0) % 60}s</td>
+    <td>${new Date(r.submittedAt).toLocaleString('vi-VN')}</td>
+    <td class="col-action"><button class="btn btn-soft" data-student="${r.userId}">PDF</button></td>
+  </tr>`).join('');
 
-    tbody._data = data;
+  tbody._data = data;
 }
 
-function applyFilter() {
-    const username = document.getElementById('username').value;
-    const exam     = document.getElementById('exam').value;
-    renderTable(MockAPI.filterResults(username, exam));
+async function applyFilter() {
+  const studentId = document.getElementById('username').value.trim();
+  const examId = document.getElementById('exam').value;
+
+  if (!studentId) {
+    renderTable([]);
+    return;
+  }
+
+  try {
+    const q = '?page=0&size=200' + (examId && examId !== 'Tat ca' ? '&examId=' + encodeURIComponent(examId) : '');
+    const res = await ApiClient.request('/admin/students/' + encodeURIComponent(studentId) + '/results' + q);
+    renderTable(res.content || []);
+  } catch (err) {
+    alert('Khong tai duoc ket qua: ' + (err.message || err));
+    renderTable([]);
+  }
+}
+
+async function loadExamOptions() {
+  const data = await ApiClient.request('/admin/exams?page=0&size=200');
+  const exams = data.content || [];
+  const sel = document.getElementById('exam');
+  sel.innerHTML = '<option>Tat ca</option>' + exams.map((e) => `<option value="${e.id}">${escapeHtml(e.name)}</option>`).join('');
 }
 
 document.getElementById('username').addEventListener('input', applyFilter);
 document.getElementById('exam').addEventListener('change', applyFilter);
 document.querySelector('.btn-delete').addEventListener('click', () => {
-    document.getElementById('username').value = '';
-    document.getElementById('exam').selectedIndex = 0;
-    applyFilter();
+  document.getElementById('username').value = '';
+  document.getElementById('exam').selectedIndex = 0;
+  applyFilter();
 });
 
-document.getElementById('results-tbody').addEventListener('click', (e) => {
-    const btn = e.target.closest('[data-index]');
-    if (!btn) return;
-    const tbody = document.getElementById('results-tbody');
-    const r = tbody._data[+btn.dataset.index];
-    if (r) exportPDF(r);
+document.getElementById('results-tbody').addEventListener('click', async (e) => {
+  const btn = e.target.closest('[data-student]');
+  if (!btn) return;
+
+  try {
+    const studentId = btn.dataset.student;
+    const blob = await ApiClient.request('/admin/students/' + encodeURIComponent(studentId) + '/results/export?format=pdf');
+    downloadBlob(blob, `student-${studentId}-results.pdf`);
+  } catch (err) {
+    alert('Export that bai: ' + (err.message || err));
+  }
 });
 
-renderTable(MockAPI.getAllResults());
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+document.querySelector('.logout-btn').addEventListener('click', function (e) {
+  e.preventDefault();
+  ApiClient.clearAuth();
+  window.location.href = './login.html';
+});
+
+async function init() {
+  if (!requireAdmin()) return;
+  await loadExamOptions();
+  await applyFilter();
+}
+
+init();

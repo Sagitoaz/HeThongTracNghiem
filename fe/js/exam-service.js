@@ -1,26 +1,9 @@
 /**
- * exam-service.js — Exam session management and scoring
- * Depends on: DataService
+ * exam-service.js - Exam flow via backend API.
+ * Depends on: ApiClient
  */
 const ExamService = (function () {
   var SESSION_KEY = 'httn_exam_session';
-
-  // ─── Availability ─────────────────────────────────────────
-
-  function getAvailableExams() {
-    return DataService.getExams();
-  }
-
-  function isExamAvailable(exam) {
-    if (exam.type === 'free') return true;
-    if (exam.type === 'scheduled') {
-      if (!exam.startTime) return false;
-      return new Date(exam.startTime).getTime() <= Date.now();
-    }
-    return false;
-  }
-
-  // ─── Session ──────────────────────────────────────────────
 
   function getExamSession() {
     try {
@@ -30,109 +13,104 @@ const ExamService = (function () {
     }
   }
 
-  /**
-   * Start or resume an exam session.
-   * @param {string} examId
-   * @param {string} userId
-   * @returns {object|null} ExamSession or null if exam not found
-   */
-  function startExam(examId, userId) {
-    var exam = DataService.getExamById(examId);
-    if (!exam) return null;
+  function saveSession(session) {
+    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+  }
 
-    // Resume if session already exists for this exam+user
+  async function getAvailableExams() {
+    var data = await ApiClient.request('/exams?page=0&size=100');
+    return data.content || [];
+  }
+
+  function isExamAvailable(exam) {
+    if (typeof exam.isAvailable === 'boolean') return exam.isAvailable;
+    if (exam.type === 'free') return true;
+    if (exam.type === 'scheduled') {
+      if (!exam.startTime) return false;
+      return new Date(exam.startTime).getTime() <= Date.now();
+    }
+    return false;
+  }
+
+  async function getExamDetail(examId) {
+    return ApiClient.request('/exams/' + encodeURIComponent(examId));
+  }
+
+  async function startExam(examId, userId) {
     var existing = getExamSession();
-    if (existing && existing.examId === examId && existing.userId === userId) {
+    if (existing && existing.examId === examId && existing.userId === userId && !existing.submitted) {
       return existing;
     }
 
+    var exam = await getExamDetail(examId);
+    var started = await ApiClient.request('/exams/' + encodeURIComponent(examId) + '/attempts/start', {
+      method: 'POST',
+      body: null,
+      headers: {},
+    });
+
+    var questions = exam.questions || [];
     var session = {
-      id: DataService.generateId(),
+      attemptId: started.attemptId,
       examId: examId,
       userId: userId,
+      examName: exam.name,
+      durationMinutes: exam.durationMinutes || exam.duration || 30,
+      questionIds: questions.map(function (q) { return q.id; }),
+      answers: new Array(questions.length).fill(-1),
       startTime: Date.now(),
-      answers: new Array(exam.questions.length).fill(-1),
-      totalQuestions: exam.questions.length,
+      submitted: false,
     };
-    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+
+    saveSession(session);
     return session;
   }
 
-  /**
-   * Save an answer into the current session.
-   * @param {number} questionIndex
-   * @param {number} answerIndex  0-3
-   */
-  function saveAnswer(questionIndex, answerIndex) {
+  async function saveAnswer(questionIndex, answerIndex) {
     var session = getExamSession();
     if (!session) return;
+    var questionId = session.questionIds[questionIndex];
+    if (!questionId) return;
+
+    await ApiClient.request('/attempts/' + encodeURIComponent(session.attemptId) + '/answers', {
+      method: 'PUT',
+      body: JSON.stringify({ questionId: questionId, selectedOptionIndex: answerIndex }),
+    });
+
     session.answers[questionIndex] = answerIndex;
-    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    saveSession(session);
   }
 
-  // ─── Scoring ──────────────────────────────────────────────
-
-  /**
-   * @param {Array} questions
-   * @param {number[]} answers
-   * @returns {{ score: number, correct: number, total: number }}
-   */
-  function calculateScore(questions, answers) {
-    var correct = 0;
-    for (var i = 0; i < questions.length; i++) {
-      if (answers[i] === questions[i].correctAnswer) correct++;
-    }
-    var total = questions.length;
-    var score = total === 0 ? 0 : parseFloat(((correct / total) * 10).toFixed(1));
-    return { score: score, correct: correct, total: total };
-  }
-
-  /**
-   * Submit the current exam session and persist the result.
-   * Clears the session from localStorage.
-   * @returns {object|null} ExamResult or null if no active session
-   */
-  function submitExam() {
+  async function submitExam() {
     var session = getExamSession();
     if (!session) return null;
 
-    var exam = DataService.getExamById(session.examId);
-    if (!exam) return null;
+    var submitted = await ApiClient.request('/attempts/' + encodeURIComponent(session.attemptId) + '/submit', {
+      method: 'POST',
+      body: null,
+      headers: {},
+    });
 
-    var user = DataService.getUserById(session.userId);
-    var username = user ? user.username : 'unknown';
+    session.submitted = true;
+    saveSession(session);
 
-    var scored = calculateScore(exam.questions, session.answers);
-    var durationSec = Math.floor((Date.now() - session.startTime) / 1000);
-
-    var result = {
-      id: DataService.generateId(),
-      examId: session.examId,
-      examName: exam.name,
-      userId: session.userId,
-      username: username,
-      score: scored.score,
-      correct: scored.correct,
-      total: scored.total,
-      answers: session.answers.slice(),
-      submittedAt: new Date().toISOString(),
-      duration: durationSec,
-    };
-
-    DataService.saveResult(result);
+    var resultId = submitted.resultId;
     localStorage.removeItem(SESSION_KEY);
-    return result;
+    return { id: resultId };
   }
 
-  // ─── Public API ──────────────────────────────────────────────────────────
+  async function getResultDetail(resultId) {
+    return ApiClient.request('/results/' + encodeURIComponent(resultId));
+  }
 
   return {
     getAvailableExams,
     isExamAvailable,
     getExamSession,
+    getExamDetail,
     startExam,
     saveAnswer,
-    calculateScore,
     submitExam,
+    getResultDetail,
   };
 })();

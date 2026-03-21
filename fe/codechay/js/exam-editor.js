@@ -1,185 +1,251 @@
-// exam-editor.js — Trang tạo/sửa kỳ thi (codechay/admin/exam-editor.html)
+// exam-editor.js - Admin tao/sua de thi qua backend API
 
-seedIfEmpty();
-
-let examId = getQueryParam("examId");
+let examId = getQueryParam('examId');
+let questionCache = [];
 let editingQId = null;
 
-function findExam() {
-  const exams = DB.listExams();
-  return examId ? exams.find((e) => e.id === examId) : null;
+function requireAdmin() {
+  const u = JSON.parse(localStorage.getItem('ptit_user') || 'null');
+  const t = ApiClient.getToken();
+  if (!u || u.role !== 'admin' || !t) {
+    window.location.href = './login.html';
+    return null;
+  }
+  return u;
+}
+
+async function findExam() {
+  if (!examId) return null;
+  const data = await ApiClient.request('/admin/exams?page=0&size=200');
+  const exams = data.content || [];
+  return exams.find((e) => e.id === examId) || null;
 }
 
 function setExamForm(exam) {
-  $("#pageTitle").textContent = exam
-    ? `Chỉnh sửa kỳ thi (${exam.id})`
-    : "Tạo kỳ thi";
-  $("#examName").value    = exam?.name || "";
-  $("#examDesc").value    = exam?.desc || "";
-  $("#examType").value    = exam?.type || "free";
-  $("#examDuration").value = exam?.durationMin ?? "";
-  renderQuestions(exam?.questions || []);
+  $('#pageTitle').textContent = exam ? `Chinh sua ky thi (${exam.id})` : 'Tao ky thi';
+  $('#examName').value = exam?.name || '';
+  $('#examDesc').value = exam?.description || '';
+  $('#examType').value = exam?.type || 'free';
+  $('#examDuration').value = exam?.durationMinutes ?? '';
 }
 
-function saveExam() {
-  const name = $("#examName").value.trim();
-  if (!name) { alert("Tên kỳ thi không được trống"); return; }
+async function loadQuestions() {
+  if (!examId) {
+    renderQuestions([]);
+    return;
+  }
+  questionCache = await ApiClient.request('/admin/exams/' + encodeURIComponent(examId) + '/questions');
+  renderQuestions(questionCache || []);
+}
 
-  const desc       = $("#examDesc").value.trim();
-  const type       = $("#examType").value;
-  const durationMin = type === "timed" ? Number($("#examDuration").value || 0) : null;
+async function loadPage() {
+  if (!requireAdmin()) return;
 
-  const exams = DB.listExams();
-  let exam = findExam();
+  const exam = await findExam();
+  setExamForm(exam);
+  await loadQuestions();
+  clearQForm();
+}
 
-  if (!exam) {
-    examId = uid("E");
-    exam = { id: examId, createdAt: today(), questions: [] };
-    exams.unshift(exam);
+async function saveExam() {
+  const name = $('#examName').value.trim();
+  if (!name) {
+    alert('Ten ky thi khong duoc trong');
+    return;
   }
 
-  exam.name = name;
-  exam.desc = desc;
-  exam.type = type;
-  exam.durationMin = durationMin;
+  const payload = {
+    name,
+    description: $('#examDesc').value.trim(),
+    type: $('#examType').value,
+    durationMinutes: Number($('#examDuration').value || 0),
+    startTime: null,
+  };
 
-  DB.saveExams(exams);
-  // Update URL without reload
-  history.replaceState({}, "", "./exam-editor.html?examId=" + examId);
-  setExamForm(exam);
-  alert("Đã lưu kỳ thi");
+  if (payload.type === 'scheduled' && !payload.durationMinutes) {
+    alert('Ky thi scheduled can durationMinutes > 0');
+    return;
+  }
+
+  try {
+    if (!examId) {
+      const created = await ApiClient.request('/admin/exams', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+      examId = created.id;
+      history.replaceState({}, '', './exam-editor.html?examId=' + examId);
+    } else {
+      await ApiClient.request('/admin/exams/' + encodeURIComponent(examId), {
+        method: 'PUT',
+        body: JSON.stringify(payload),
+      });
+    }
+
+    const exam = await findExam();
+    setExamForm(exam);
+    alert('Da luu ky thi');
+  } catch (err) {
+    alert('Khong luu duoc ky thi: ' + (err.message || err));
+  }
 }
 
 function renderQuestions(questions) {
-  $("#qRows").innerHTML = questions.map((q, i) => `
+  $('#qRows').innerHTML = questions.map((q, i) => `
     <tr>
       <td>${i + 1}</td>
-      <td>${q.text}</td>
-      <td><b>${"ABCD"[q.correctIndex]}</b></td>
+      <td>${escapeHtml(q.text || '')}</td>
+      <td><b>${'ABCD'[q.correctOptionIndex] || 'A'}</b></td>
       <td class="row">
-        <button class="btn btn-sm btn-ghost" data-edit-q="${q.id}">Sửa</button>
-        <button class="btn btn-sm btn-danger" data-del-q="${q.id}">Xóa</button>
+        <button class="btn btn-sm btn-ghost" data-edit-q="${q.id}">Sua</button>
+        <button class="btn btn-sm btn-danger" data-del-q="${q.id}">Xoa</button>
       </td>
     </tr>
-  `).join("");
+  `).join('');
 }
 
 function clearQForm() {
   editingQId = null;
-  $("#qText").value    = "";
-  $("#optA").value     = "";
-  $("#optB").value     = "";
-  $("#optC").value     = "";
-  $("#optD").value     = "";
-  $("#qCorrect").value = "0";
-  $("#qHint").textContent = "Đang ở chế độ: thêm câu mới";
+  $('#qText').value = '';
+  $('#optA').value = '';
+  $('#optB').value = '';
+  $('#optC').value = '';
+  $('#optD').value = '';
+  $('#qCorrect').value = '0';
+  $('#qHint').textContent = 'Dang o che do: them cau moi';
 }
 
 function loadQToForm(qId) {
-  const exam = findExam();
-  if (!exam) return;
-  const q = exam.questions.find((x) => x.id === qId);
+  const q = questionCache.find((x) => x.id === qId);
   if (!q) return;
 
   editingQId = qId;
-  $("#qText").value    = q.text;
-  $("#optA").value     = q.options[0] || "";
-  $("#optB").value     = q.options[1] || "";
-  $("#optC").value     = q.options[2] || "";
-  $("#optD").value     = q.options[3] || "";
-  $("#qCorrect").value = String(q.correctIndex);
-  $("#qHint").textContent = `Đang sửa câu: ${q.id}`;
+  $('#qText').value = q.text || '';
+  $('#optA').value = q.options?.[0] || '';
+  $('#optB').value = q.options?.[1] || '';
+  $('#optC').value = q.options?.[2] || '';
+  $('#optD').value = q.options?.[3] || '';
+  $('#qCorrect').value = String(q.correctOptionIndex || 0);
+  $('#qHint').textContent = `Dang sua cau: ${q.id}`;
 }
 
-function saveQuestion() {
-  const exam = findExam();
-  if (!exam) { alert("Bạn cần Lưu kỳ thi trước"); return; }
-
-  const text = $("#qText").value.trim();
-  if (!text) { alert("Câu hỏi không được trống"); return; }
-
-  const options = [
-    $("#optA").value.trim(),
-    $("#optB").value.trim(),
-    $("#optC").value.trim(),
-    $("#optD").value.trim(),
-  ];
-  const correctIndex = Number($("#qCorrect").value);
-
-  const exams = DB.listExams();
-  const e = exams.find((x) => x.id === exam.id);
-
-  if (editingQId) {
-    const q = e.questions.find((x) => x.id === editingQId);
-    if (!q) return;
-    q.text         = text;
-    q.options      = options;
-    q.correctIndex = correctIndex;
-  } else {
-    e.questions.push({ id: uid("Q"), text, options, correctIndex });
+async function saveQuestion() {
+  if (!examId) {
+    alert('Ban can luu ky thi truoc');
+    return;
   }
 
-  DB.saveExams(exams);
-  clearQForm();
-  setExamForm(e);
+  const text = $('#qText').value.trim();
+  if (!text) {
+    alert('Cau hoi khong duoc trong');
+    return;
+  }
+
+  const payload = {
+    text,
+    options: [
+      $('#optA').value.trim(),
+      $('#optB').value.trim(),
+      $('#optC').value.trim(),
+      $('#optD').value.trim(),
+    ],
+    correctOptionIndex: Number($('#qCorrect').value),
+    explanation: '',
+  };
+
+  try {
+    if (editingQId) {
+      await ApiClient.request(`/admin/exams/${encodeURIComponent(examId)}/questions/${encodeURIComponent(editingQId)}`, {
+        method: 'PUT',
+        body: JSON.stringify(payload),
+      });
+    } else {
+      await ApiClient.request(`/admin/exams/${encodeURIComponent(examId)}/questions`, {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+    }
+
+    clearQForm();
+    await loadQuestions();
+  } catch (err) {
+    alert('Khong luu duoc cau hoi: ' + (err.message || err));
+  }
 }
 
 async function importExcel() {
-  const exam = findExam();
-  if (!exam) { alert("Bạn cần Lưu kỳ thi trước"); return; }
+  if (!examId) {
+    alert('Ban can luu ky thi truoc');
+    return;
+  }
 
-  const file = $("#excelFile").files?.[0];
-  if (!file) { alert("Chọn file Excel"); return; }
+  const file = $('#excelFile').files?.[0];
+  if (!file) {
+    alert('Chon file Excel');
+    return;
+  }
 
-  const rows = await readExcelRows(file);
-  const mine = rows.filter((r) => String(r.examId || "").trim() === exam.id);
+  const form = new FormData();
+  form.append('file', file);
 
-  if (!mine.length) { alert("Không có dòng nào khớp examId=" + exam.id); return; }
-
-  const exams = DB.listExams();
-  const e = exams.find((x) => x.id === exam.id);
-
-  mine.forEach((r) => {
-    const correct = String(r.correct || "A").toUpperCase();
-    const idx = Math.max(0, "ABCD".indexOf(correct));
-    e.questions.push({
-      id: uid("Q"),
-      text: String(r.question || "").trim(),
-      options: [r.A, r.B, r.C, r.D].map((v) => String(v ?? "")),
-      correctIndex: idx,
+  try {
+    const result = await ApiClient.request(`/admin/exams/${encodeURIComponent(examId)}/questions/import`, {
+      method: 'POST',
+      body: form,
+      headers: {},
     });
-  });
-
-  DB.saveExams(exams);
-  setExamForm(e);
-  alert("Import xong: +" + mine.length + " câu");
+    alert(`Import xong: ${result.importedCount || 0} cau, loi ${result.failedCount || 0}`);
+    await loadQuestions();
+  } catch (err) {
+    alert('Import that bai: ' + (err.message || err));
+  }
 }
 
-document.addEventListener("click", (e) => {
+document.addEventListener('click', async (e) => {
   const editId = e.target?.dataset?.editQ;
   if (editId) loadQToForm(editId);
 
   const delId = e.target?.dataset?.delQ;
-  if (delId) {
-    const exams = DB.listExams();
-    const ex = exams.find((x) => x.id === examId);
-    ex.questions = ex.questions.filter((q) => q.id !== delId);
-    DB.saveExams(exams);
-    setExamForm(ex);
+  if (!delId) return;
+
+  if (!confirm('Xac nhan xoa cau hoi?')) return;
+
+  try {
+    await ApiClient.request(`/admin/exams/${encodeURIComponent(examId)}/questions/${encodeURIComponent(delId)}`, {
+      method: 'DELETE',
+      body: null,
+      headers: {},
+    });
+    await loadQuestions();
+  } catch (err) {
+    alert('Khong xoa duoc cau hoi: ' + (err.message || err));
   }
 });
 
-$("#btnSaveExam").addEventListener("click", saveExam);
-$("#btnNewExam").addEventListener("click", () => {
+$('#btnSaveExam').addEventListener('click', saveExam);
+$('#btnNewExam').addEventListener('click', () => {
   examId = null;
-  history.replaceState({}, "", "./exam-editor.html");
+  history.replaceState({}, '', './exam-editor.html');
   clearQForm();
   setExamForm(null);
+  renderQuestions([]);
+});
+$('#btnClearQ').addEventListener('click', clearQForm);
+$('#btnSaveQ').addEventListener('click', saveQuestion);
+$('#btnImportExcel').addEventListener('click', importExcel);
+
+document.querySelector('.logout-btn').addEventListener('click', function (e) {
+  e.preventDefault();
+  ApiClient.clearAuth();
+  window.location.href = './login.html';
 });
 
-$("#btnClearQ").addEventListener("click", clearQForm);
-$("#btnSaveQ").addEventListener("click", saveQuestion);
-$("#btnImportExcel").addEventListener("click", importExcel);
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
 
-clearQForm();
-setExamForm(findExam());
+loadPage();
