@@ -1,4 +1,4 @@
-﻿/**
+/**
  * statistics.js - Admin statistics via backend API.
  * Depends on: AuthService, ApiClient, Chart.js
  */
@@ -17,7 +17,7 @@
   var exams = [];
 
   init().catch(function (err) {
-    alert('Khong tai duoc thong ke: ' + (err.message || err));
+    alert('Không tải được thống kê: ' + (err.message || err));
   });
 
   async function init() {
@@ -39,7 +39,7 @@
         document.getElementById('examStats').classList.remove('hidden');
         document.getElementById('noExamMsg').classList.add('hidden');
         document.getElementById('statsTbody').innerHTML =
-          '<tr><td colspan="5" class="text-center text-sec" style="padding:20px">Loi tai thong ke: ' + escHtml(err.message || String(err)) + '</td></tr>';
+          '<tr><td colspan="5" class="text-center text-sec" style="padding:20px">Lỗi tải thống kê: ' + escHtml(err.message || String(err)) + '</td></tr>';
       }
     });
 
@@ -50,7 +50,7 @@
         var blob = await ApiClient.request('/admin/exams/' + encodeURIComponent(examId) + '/results/export?format=pdf');
         downloadBlob(blob, 'exam-' + examId + '-results.pdf');
       } catch (err) {
-        alert('Export that bai: ' + (err.message || err));
+        alert('Xuất dữ liệu thất bại: ' + (err.message || err));
       }
     });
 
@@ -64,10 +64,10 @@
   async function renderOverall() {
     var overview = await ApiClient.request('/admin/statistics/overview');
     var items = [
-      { icon: '\uD83D\uDC65', label: 'Sinh vien', value: overview.totalStudents || 0 },
-      { icon: '\uD83D\uDC65', label: 'De thi', value: overview.totalExams || 0 },
-      { icon: '\uD83D\uDC65', label: 'Luot nop', value: overview.totalAttempts || 0 },
-      { icon: '\u2B50', label: 'Diem TB', value: Number(overview.averageScore || 0).toFixed(1) + '/10' },
+      { icon: '\uD83D\uDC65', label: 'Sinh viên', value: overview.totalStudents || 0 },
+      { icon: '\uD83D\uDC65', label: 'Đề thi', value: overview.totalExams || 0 },
+      { icon: '\uD83D\uDC65', label: 'Lượt nộp', value: overview.totalAttempts || 0 },
+      { icon: '\u2B50', label: 'Điểm TB', value: Number(overview.averageScore || 0).toFixed(1) + '/10' },
     ];
 
     document.getElementById('overallStats').innerHTML = items.map(function (s) {
@@ -83,7 +83,7 @@
     var data = await ApiClient.request('/admin/exams?page=0&size=200');
     exams = data.content || [];
     var select = document.getElementById('filterExam');
-    select.innerHTML = '<option value="">-- Chon de thi --</option>' +
+    select.innerHTML = '<option value="">-- Chọn đề thi --</option>' +
       exams.map(function (e) {
         return '<option value="' + e.id + '">' + escHtml(e.name) + '</option>';
       }).join('');
@@ -98,8 +98,8 @@
     document.getElementById('noExamMsg').classList.add('hidden');
 
     var cards = [
-      { icon: '\uD83D\uDC65', label: 'Luot nop', value: stats.attempts || 0 },
-      { icon: '\u2B50', label: 'Diem TB', value: Number(stats.averageScore || 0).toFixed(1) + '/10' },
+      { icon: '\uD83D\uDC65', label: 'Lượt nộp', value: stats.attempts || 0 },
+      { icon: '\u2B50', label: 'Điểm TB', value: Number(stats.averageScore || 0).toFixed(1) + '/10' },
     ];
 
     document.getElementById('examStatCards').innerHTML = cards.map(function (c) {
@@ -119,7 +119,7 @@
     doughnutChart = new Chart(document.getElementById('doughnutChart'), {
       type: 'doughnut',
       data: {
-        labels: ['Diem cao (6-10)', 'Diem thap (0-6)'],
+        labels: ['Điểm cao (6-10)', 'Điểm thấp (0-6)'],
         datasets: [{
           data: [totalCorrectApprox, totalWrongApprox],
           backgroundColor: ['#28A745', '#DC3545'],
@@ -136,7 +136,7 @@
       data: {
         labels: ['0-2', '2-4', '4-6', '6-8', '8-10'],
         datasets: [{
-          label: 'So sinh vien',
+          label: 'Số sinh viên',
           data: dist,
           backgroundColor: ['#DC3545', '#FD7E14', '#FFC107', '#20C997', '#28A745'],
           borderRadius: 6,
@@ -152,7 +152,7 @@
     var tbody = document.getElementById('statsTbody');
     if (!results.length) {
       tbody.innerHTML =
-        '<tr><td colspan="5" class="text-center text-sec" style="padding:20px">Chua co ket qua nao cho de thi nay.</td></tr>';
+        '<tr><td colspan="5" class="text-center text-sec" style="padding:20px">Chưa có kết quả nào cho đề thi này.</td></tr>';
     } else {
       tbody.innerHTML = results.map(function (r) {
         var cls = Number(r.score || 0) >= 8 ? 'text-success' : Number(r.score || 0) >= 5 ? '' : 'text-danger';
@@ -196,4 +196,5 @@
     });
   }
 })();
+
 

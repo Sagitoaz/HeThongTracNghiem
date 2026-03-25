@@ -5,7 +5,7 @@ function validateEmailField(input) {
   const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!pattern.test(val)) {
     input.style.borderColor = 'red';
-    alert('Vui long nhap dia chi email hop le.');
+    alert('Vui lòng nhập địa chỉ email hợp lệ.');
     return false;
   }
   return true;
@@ -16,7 +16,7 @@ function validateUsernameField(input) {
   const pattern = /^[a-zA-Z0-9_\.]{3,}$/;
   if (!pattern.test(val)) {
     input.style.borderColor = 'red';
-    alert('Ten dang nhap phai co it nhat 3 ky tu.');
+    alert('Tên đăng nhập phải có ít nhất 3 ký tự.');
     return false;
   }
   return true;
@@ -25,7 +25,7 @@ function validateUsernameField(input) {
 function validatePasswordField(input) {
   if (input.value.length < 6) {
     input.style.borderColor = 'red';
-    alert('Mat khau phai co it nhat 6 ky tu.');
+    alert('Mật khẩu phải có ít nhất 6 ký tự.');
     return false;
   }
   return true;
@@ -60,7 +60,7 @@ function validateInputs(form) {
   const confirm = form.querySelector('#confirm-password');
   if (confirm && password && password.value !== confirm.value) {
     valid = false;
-    alert('Mat khau xac nhan khong khop!');
+    alert('Mật khẩu xác nhận không khớp!');
     confirm.style.borderColor = 'red';
   }
 
@@ -92,7 +92,7 @@ async function handleSubmission(form) {
           method: 'POST',
           body: JSON.stringify({ username, email, password, confirmPassword }),
         });
-        alert('Dang ky tai khoan thanh cong! Vui long dang nhap.');
+        alert('Đăng ký tài khoản thành công! Vui lòng đăng nhập.');
         window.location.href = './login.html';
         break;
       }
@@ -109,7 +109,7 @@ async function handleSubmission(form) {
       }
     }
   } catch (err) {
-    alert(err.message || 'Xu ly xac thuc that bai.');
+    alert(err.message || 'Xử lý xác thực thất bại.');
   }
 }
 
@@ -128,3 +128,4 @@ if (document.readyState === 'loading') {
 } else {
   attachFormListeners();
 }
+

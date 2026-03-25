@@ -10,7 +10,7 @@ const AuthService = (function () {
     const uname = (username || '').trim();
     const pwd = (password || '').trim();
     if (!uname || !pwd) {
-      return { success: false, message: 'Vui long nhap day du thong tin.' };
+      return { success: false, message: 'Vui lòng nhập đầy đủ thông tin.' };
     }
 
     try {
@@ -21,7 +21,7 @@ const AuthService = (function () {
       ApiClient.setAuth(payload, payload.user, 'user');
       return { success: true, user: getCurrentUser() };
     } catch (err) {
-      return { success: false, message: err.message || 'Dang nhap that bai.' };
+      return { success: false, message: err.message || 'Đăng nhập thất bại.' };
     }
   }
 
@@ -32,7 +32,7 @@ const AuthService = (function () {
     const cpwd = (confirmPassword || '').trim();
 
     if (!uname || !em || !pwd || !cpwd) {
-      return { success: false, message: 'Vui long nhap day du thong tin.' };
+      return { success: false, message: 'Vui lòng nhập đầy đủ thông tin.' };
     }
 
     try {
@@ -42,7 +42,7 @@ const AuthService = (function () {
       });
       return { success: true };
     } catch (err) {
-      return { success: false, message: err.message || 'Dang ky that bai.' };
+      return { success: false, message: err.message || 'Đăng ký thất bại.' };
     }
   }
 
@@ -63,7 +63,7 @@ const AuthService = (function () {
     const uname = (username || '').trim();
     const pwd = (password || '').trim();
     if (!uname || !pwd) {
-      return { success: false, message: 'Vui long nhap day du thong tin.' };
+      return { success: false, message: 'Vui lòng nhập đầy đủ thông tin.' };
     }
 
     try {
@@ -74,7 +74,7 @@ const AuthService = (function () {
       ApiClient.setAuth(payload, payload.user, 'admin');
       return { success: true, user: getCurrentAdmin() };
     } catch (err) {
-      return { success: false, message: err.message || 'Dang nhap admin that bai.' };
+      return { success: false, message: err.message || 'Đăng nhập quản trị thất bại.' };
     }
   }
 
@@ -107,9 +107,9 @@ const AuthService = (function () {
       document.body.innerHTML =
         '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:Segoe UI,Roboto,sans-serif;background:#F5F5F5;color:#333;">' +
         '<div style="background:#fff;border-radius:8px;padding:48px 64px;box-shadow:0 2px 16px rgba(0,0,0,.12);text-align:center;">' +
-        '<h1 style="font-size:28px;color:#C0282D;margin:0 0 8px;">403 - Khong co quyen truy cap</h1>' +
-        '<p style="color:#666;margin:0 0 24px;">Ban can dang nhap voi tai khoan quan tri de xem trang nay.</p>' +
-        '<a href="login.html" style="display:inline-block;padding:12px 32px;background:#C0282D;color:#fff;border-radius:6px;text-decoration:none;font-weight:600;font-size:15px;">Dang nhap Admin</a>' +
+        '<h1 style="font-size:28px;color:#C0282D;margin:0 0 8px;">403 - Không có quyền truy cập</h1>' +
+        '<p style="color:#666;margin:0 0 24px;">Bạn cần đăng nhập bằng tài khoản quản trị để xem trang này.</p>' +
+        '<a href="login.html" style="display:inline-block;padding:12px 32px;background:#C0282D;color:#fff;border-radius:6px;text-decoration:none;font-weight:600;font-size:15px;">Đăng nhập Admin</a>' +
         '</div></div>';
       throw new Error('GUARD_REDIRECT');
     }
@@ -128,3 +128,4 @@ const AuthService = (function () {
     guardAdminPage,
   };
 })();
+

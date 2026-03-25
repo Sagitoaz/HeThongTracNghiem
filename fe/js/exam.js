@@ -1,4 +1,4 @@
-﻿/**
+/**
  * exam.js - Exam taking page via backend API.
  * Depends on: AuthService, ExamService
  */
@@ -23,7 +23,7 @@
   var timerInterval = null;
 
   init().catch(function (err) {
-    alert('Khong tai duoc de thi: ' + (err.message || err));
+    alert('Không tải được đề thi: ' + (err.message || err));
     window.location.href = 'index.html';
   });
 
@@ -40,7 +40,7 @@
 
     document.getElementById('examTitle').textContent = exam.name;
     document.getElementById('examSubtitle').textContent =
-      totalQ + ' cau hoi • ' + (exam.durationMinutes || 0) + ' phut';
+      totalQ + ' câu hỏi • ' + (exam.durationMinutes || 0) + ' phút';
 
     renderQuestion(currentIndex);
     buildNavGrid();
@@ -86,7 +86,7 @@
     session = ExamService.getExamSession();
     var answers = session ? session.answers : [];
 
-    document.getElementById('questionNumber').textContent = 'Cau ' + (idx + 1) + ' / ' + totalQ;
+    document.getElementById('questionNumber').textContent = 'Câu ' + (idx + 1) + ' / ' + totalQ;
     document.getElementById('questionText').textContent = q.text;
 
     var optList = document.getElementById('optionsList');
@@ -119,7 +119,7 @@
       await ExamService.saveAnswer(qIdx, optIdx);
       renderQuestion(qIdx);
     } catch (err) {
-      alert('Khong luu duoc dap an: ' + (err.message || err));
+      alert('Không lưu được đáp án: ' + (err.message || err));
     }
   }
 
@@ -167,8 +167,8 @@
   document.getElementById('btnSubmit').addEventListener('click', function () {
     var unanswered = totalQ - countAnswered();
     var msg = unanswered > 0
-      ? 'Ban con ' + unanswered + ' cau chua tra loi. Ban co chac muon nop bai?'
-      : 'Ban da tra loi tat ca ' + totalQ + ' cau. Xac nhan nop bai?';
+      ? 'Bạn còn ' + unanswered + ' câu chưa trả lời. Bạn có chắc muốn nộp bài?'
+      : 'Bạn đã trả lời tất cả ' + totalQ + ' câu. Xác nhận nộp bài?';
     document.getElementById('submitModalBody').textContent = msg;
     document.getElementById('submitModal').classList.remove('hidden');
   });
@@ -191,7 +191,7 @@
         window.location.href = 'index.html';
       }
     } catch (err) {
-      alert('Nop bai that bai: ' + (err.message || err));
+      alert('Nộp bài thất bại: ' + (err.message || err));
     }
   }
 
@@ -203,4 +203,5 @@
       .replace(/"/g, '&quot;');
   }
 })();
+
 

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * dashboard.js - Admin dashboard via backend API.
  * Depends on: AuthService, ApiClient
  */
@@ -17,17 +17,17 @@
   });
 
   init().catch(function (err) {
-    alert('Khong tai duoc dashboard: ' + (err.message || err));
+    alert('Không tải được bảng điều khiển: ' + (err.message || err));
   });
 
   async function init() {
     var overview = await ApiClient.request('/admin/statistics/overview');
 
     var statsData = [
-      { icon: '\uD83D\uDC65', label: 'Sinh vien', value: overview.totalStudents || 0 },
-      { icon: '\uD83D\uDC65', label: 'De thi', value: overview.totalExams || 0 },
-      { icon: '\uD83D\uDC65', label: 'Luot nop', value: overview.totalAttempts || 0 },
-      { icon: '\u2B50', label: 'Diem TB', value: Number(overview.averageScore || 0).toFixed(1) + '/10' },
+      { icon: '\uD83D\uDC65', label: 'Sinh viên', value: overview.totalStudents || 0 },
+      { icon: '\uD83D\uDC65', label: 'Đề thi', value: overview.totalExams || 0 },
+      { icon: '\uD83D\uDC65', label: 'Lượt nộp', value: overview.totalAttempts || 0 },
+      { icon: '\u2B50', label: 'Điểm TB', value: Number(overview.averageScore || 0).toFixed(1) + '/10' },
     ];
 
     document.getElementById('statsGrid').innerHTML = statsData.map(function (s) {
@@ -51,7 +51,7 @@
 
       if (!rows.length) {
         tbody.innerHTML =
-          '<tr><td colspan="5" class="text-center text-sec" style="padding:20px">Chua co luot nop nao.</td></tr>';
+          '<tr><td colspan="5" class="text-center text-sec" style="padding:20px">Chưa có lượt nộp nào.</td></tr>';
         return;
       }
 
@@ -67,7 +67,7 @@
       }).join('');
     } catch (err) {
       tbody.innerHTML =
-        '<tr><td colspan="5" class="text-center text-sec" style="padding:20px">Loi tai luot nop gan day: ' +
+        '<tr><td colspan="5" class="text-center text-sec" style="padding:20px">Lỗi tải lượt nộp gần đây: ' +
         escHtml(err.message || String(err)) + '</td></tr>';
     }
   }
@@ -87,4 +87,5 @@
     });
   }
 })();
+
 

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * student-results.js - Admin student results via backend API.
  * Depends on: AuthService, ApiClient
  */
@@ -15,7 +15,7 @@
   var currentRows = [];
 
   init().catch(function (err) {
-    alert('Khong tai duoc du lieu ket qua: ' + (err.message || err));
+    alert('Không tải được dữ liệu kết quả: ' + (err.message || err));
   });
 
   async function init() {
@@ -35,7 +35,7 @@
   async function loadExamFilter() {
     var data = await ApiClient.request('/admin/exams?page=0&size=200');
     var exams = data.content || [];
-    document.getElementById('filterExam').innerHTML = '<option value="">Tat ca</option>' +
+    document.getElementById('filterExam').innerHTML = '<option value="">Tất cả</option>' +
       exams.map(function (e) {
         return '<option value="' + e.id + '">' + escHtml(e.name) + '</option>';
       }).join('');
@@ -57,7 +57,7 @@
       document.getElementById('resultCount').textContent = currentRows.length;
 
       if (!currentRows.length) {
-        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-sec" style="padding:20px">Khong tim thay ket qua.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-sec" style="padding:20px">Không tìm thấy kết quả.</td></tr>';
         return;
       }
 
@@ -84,7 +84,7 @@
 
   window.exportStudentPDF = async function (studentId) {
     if (!studentId) {
-      alert('Khong tim thay studentId de export.');
+      alert('Không tìm thấy studentId để xuất dữ liệu.');
       return;
     }
 
@@ -92,7 +92,7 @@
       var blob = await ApiClient.request('/admin/students/' + encodeURIComponent(studentId) + '/results/export?format=pdf');
       downloadBlob(blob, 'student-' + studentId + '-results.pdf');
     } catch (err) {
-      alert('Export that bai: ' + (err.message || err));
+      alert('Xuất dữ liệu thất bại: ' + (err.message || err));
     }
   };
 
@@ -118,4 +118,5 @@
     return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 })();
+
 

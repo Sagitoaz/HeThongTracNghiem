@@ -1,4 +1,4 @@
-﻿// app.js - danh sach ky thi (codechay/index.html) via backend
+// app.js - danh sach ky thi (codechay/index.html) via backend
 
 const searchInput = document.getElementById('searchInput');
 const statusFilter = document.getElementById('statusFilter');
@@ -38,14 +38,14 @@ function renderExam(list) {
     const p1 = document.createElement('p');
     const qCount = exam.questionCount || (exam.questions ? exam.questions.length : 0);
     const duration = exam.durationMinutes || exam.duration || 0;
-    p1.textContent = '\u23F1 ' + duration + ' phut  \uD83D\uDCDD ' + qCount + ' cau';
+    p1.textContent = '\u23F1 ' + duration + ' phút  \uD83D\uDCDD ' + qCount + ' câu';
 
     const p2 = document.createElement('p');
     p2.textContent = exam.description || '';
 
     const buttonJoin = document.createElement('button');
     buttonJoin.id = 'btn';
-    buttonJoin.textContent = 'Bat dau thi';
+    buttonJoin.textContent = 'Bắt đầu thi';
 
     if (!isExamActive(exam)) buttonJoin.disabled = true;
     buttonJoin.onclick = () => { window.location.href = 'exam.html?id=' + encodeURIComponent(exam.id); };
@@ -58,7 +58,7 @@ function renderExam(list) {
     if (exam.type === 'scheduled' && exam.startTime) {
       const p3 = document.createElement('p');
       const dateStart = new Date(exam.startTime);
-      p3.textContent = 'Bat dau luc: ' + dateStart.toLocaleString('vi-VN');
+      p3.textContent = 'Bắt đầu lúc: ' + dateStart.toLocaleString('vi-VN');
       card.appendChild(p3);
     }
 
@@ -85,7 +85,7 @@ async function init() {
     exams = data.content || [];
     renderExam(exams);
   } catch (err) {
-    alert('Khong tai duoc danh sach ky thi: ' + (err.message || err));
+    alert('Không tải được danh sách kỳ thi: ' + (err.message || err));
   }
 }
 
@@ -99,4 +99,5 @@ document.querySelector('.ptit-logout').addEventListener('click', function (e) {
 });
 
 init();
+
 

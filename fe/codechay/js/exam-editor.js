@@ -22,7 +22,7 @@ async function findExam() {
 }
 
 function setExamForm(exam) {
-  $('#pageTitle').textContent = exam ? `Chinh sua ky thi (${exam.id})` : 'Tao ky thi';
+  $('#pageTitle').textContent = exam ? `Chỉnh sửa kỳ thi (${exam.id})` : 'Tạo kỳ thi';
   $('#examName').value = exam?.name || '';
   $('#examDesc').value = exam?.description || '';
   $('#examType').value = exam?.type || 'free';
@@ -50,7 +50,7 @@ async function loadPage() {
 async function saveExam() {
   const name = $('#examName').value.trim();
   if (!name) {
-    alert('Ten ky thi khong duoc trong');
+    alert('Tên kỳ thi không được để trống');
     return;
   }
 
@@ -63,7 +63,7 @@ async function saveExam() {
   };
 
   if (payload.type === 'scheduled' && !payload.durationMinutes) {
-    alert('Ky thi scheduled can durationMinutes > 0');
+    alert('Kỳ thi có lịch cần durationMinutes > 0');
     return;
   }
 
@@ -84,9 +84,9 @@ async function saveExam() {
 
     const exam = await findExam();
     setExamForm(exam);
-    alert('Da luu ky thi');
+    alert('Đã lưu kỳ thi');
   } catch (err) {
-    alert('Khong luu duoc ky thi: ' + (err.message || err));
+    alert('Không lưu được kỳ thi: ' + (err.message || err));
   }
 }
 
@@ -97,8 +97,8 @@ function renderQuestions(questions) {
       <td>${escapeHtml(q.text || '')}</td>
       <td><b>${'ABCD'[q.correctOptionIndex] || 'A'}</b></td>
       <td class="row">
-        <button class="btn btn-sm btn-ghost" data-edit-q="${q.id}">Sua</button>
-        <button class="btn btn-sm btn-danger" data-del-q="${q.id}">Xoa</button>
+        <button class="btn btn-sm btn-ghost" data-edit-q="${q.id}">Sửa</button>
+        <button class="btn btn-sm btn-danger" data-del-q="${q.id}">Xóa</button>
       </td>
     </tr>
   `).join('');
@@ -112,7 +112,7 @@ function clearQForm() {
   $('#optC').value = '';
   $('#optD').value = '';
   $('#qCorrect').value = '0';
-  $('#qHint').textContent = 'Dang o che do: them cau moi';
+  $('#qHint').textContent = 'Đang ở chế độ: thêm câu mới';
 }
 
 function loadQToForm(qId) {
@@ -126,18 +126,18 @@ function loadQToForm(qId) {
   $('#optC').value = q.options?.[2] || '';
   $('#optD').value = q.options?.[3] || '';
   $('#qCorrect').value = String(q.correctOptionIndex || 0);
-  $('#qHint').textContent = `Dang sua cau: ${q.id}`;
+  $('#qHint').textContent = `Đang sửa câu: ${q.id}`;
 }
 
 async function saveQuestion() {
   if (!examId) {
-    alert('Ban can luu ky thi truoc');
+    alert('Bạn cần lưu kỳ thi trước');
     return;
   }
 
   const text = $('#qText').value.trim();
   if (!text) {
-    alert('Cau hoi khong duoc trong');
+    alert('Câu hỏi không được để trống');
     return;
   }
 
@@ -169,19 +169,19 @@ async function saveQuestion() {
     clearQForm();
     await loadQuestions();
   } catch (err) {
-    alert('Khong luu duoc cau hoi: ' + (err.message || err));
+    alert('Không lưu được câu hỏi: ' + (err.message || err));
   }
 }
 
 async function importExcel() {
   if (!examId) {
-    alert('Ban can luu ky thi truoc');
+    alert('Bạn cần lưu kỳ thi trước');
     return;
   }
 
   const file = $('#excelFile').files?.[0];
   if (!file) {
-    alert('Chon file Excel');
+    alert('Chọn tệp Excel');
     return;
   }
 
@@ -194,10 +194,10 @@ async function importExcel() {
       body: form,
       headers: {},
     });
-    alert(`Import xong: ${result.importedCount || 0} cau, loi ${result.failedCount || 0}`);
+    alert(`Nhập xong: ${result.importedCount || 0} câu, lỗi ${result.failedCount || 0}`);
     await loadQuestions();
   } catch (err) {
-    alert('Import that bai: ' + (err.message || err));
+    alert('Nhập thất bại: ' + (err.message || err));
   }
 }
 
@@ -208,7 +208,7 @@ document.addEventListener('click', async (e) => {
   const delId = e.target?.dataset?.delQ;
   if (!delId) return;
 
-  if (!confirm('Xac nhan xoa cau hoi?')) return;
+  if (!confirm('Xác nhận xóa câu hỏi?')) return;
 
   try {
     await ApiClient.request(`/admin/exams/${encodeURIComponent(examId)}/questions/${encodeURIComponent(delId)}`, {
@@ -218,7 +218,7 @@ document.addEventListener('click', async (e) => {
     });
     await loadQuestions();
   } catch (err) {
-    alert('Khong xoa duoc cau hoi: ' + (err.message || err));
+    alert('Không xóa được câu hỏi: ' + (err.message || err));
   }
 });
 
@@ -249,3 +249,4 @@ function escapeHtml(str) {
 }
 
 loadPage();
+

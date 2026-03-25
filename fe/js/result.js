@@ -1,4 +1,4 @@
-﻿/**
+/**
  * result.js - Result page controller via backend API.
  * Depends on: AuthService, ExamService, Chart.js
  */
@@ -13,7 +13,7 @@
   });
 
   init().catch(function (err) {
-    alert('Khong tai duoc ket qua: ' + (err.message || err));
+    alert('Không tải được kết quả: ' + (err.message || err));
     window.location.href = 'index.html';
   });
 
@@ -28,18 +28,18 @@
     var result = await ExamService.getResultDetail(resultId);
     var examId = result.examId || result.examid;
     if (!examId) {
-      throw new Error('Khong tim thay examId trong ket qua.');
+      throw new Error('Không tìm thấy examId trong kết quả.');
     }
     var exam = await ExamService.getExamDetail(examId);
 
     document.getElementById('scoreDisplay').textContent = Number(result.score || 0).toFixed(1);
-    document.getElementById('scoreFraction').textContent = result.correct + '/' + result.total + ' cau dung';
+    document.getElementById('scoreFraction').textContent = result.correct + '/' + result.total + ' câu đúng';
 
     var statsData = [
-      { label: 'Bai thi', value: result.examName || exam.name },
-      { label: 'Diem so', value: Number(result.score || 0).toFixed(1) + ' / 10' },
-      { label: 'So cau dung', value: result.correct + ' / ' + result.total },
-      { label: 'Nop bai', value: 'Da nop thanh cong' },
+      { label: 'Bài thi', value: result.examName || exam.name },
+      { label: 'Điểm số', value: Number(result.score || 0).toFixed(1) + ' / 10' },
+      { label: 'Số câu đúng', value: result.correct + ' / ' + result.total },
+      { label: 'Nộp bài', value: 'Đã nộp thành công' },
     ];
 
     document.getElementById('resultStats').innerHTML = statsData.map(function (s) {
@@ -55,7 +55,7 @@
       new Chart(ctx, {
         type: 'doughnut',
         data: {
-          labels: ['Cau dung', 'Cau sai'],
+          labels: ['Câu đúng', 'Câu sai'],
           datasets: [{
             data: [result.correct, wrong],
             backgroundColor: ['#28A745', '#DC3545'],
@@ -94,7 +94,7 @@
       }).join('');
 
       var statusBadge = isCorrect
-        ? '<span class="badge badge--success">Dung</span>'
+        ? '<span class="badge badge--success">Đúng</span>'
         : '<span class="badge badge--danger">Sai</span>';
 
       var explanation = answer.explanation || '';
@@ -104,7 +104,7 @@
 
       return '<div class="question-card">' +
         '<div class="review-question-header">' +
-          '<span class="review-question-num">Cau ' + (idx + 1) + '</span>' + statusBadge +
+          '<span class="review-question-num">Câu ' + (idx + 1) + '</span>' + statusBadge +
         '</div>' +
         '<div class="question-card__text">' + escHtml(q.text) + '</div>' +
         '<div class="options-list">' + optionsHtml + '</div>' +
@@ -121,4 +121,5 @@
       .replace(/"/g, '&quot;');
   }
 })();
+
 

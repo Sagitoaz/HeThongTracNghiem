@@ -1,4 +1,4 @@
-﻿/**
+/**
  * main.js - Index page controller (exam list) via backend.
  * Depends on: AuthService, ExamService
  */
@@ -15,7 +15,7 @@
   var allExams = [];
 
   init().catch(function (err) {
-    alert('Khong tai duoc danh sach de thi: ' + (err.message || err));
+    alert('Không tải được danh sách đề thi: ' + (err.message || err));
   });
 
   async function init() {
@@ -46,7 +46,7 @@
 
       var scheduledLine = '';
       if (exam.type === 'scheduled' && exam.startTime && !available) {
-        scheduledLine = '<div class="exam-card__scheduled-time">\uD83D\uDD50 Bat dau luc: ' +
+        scheduledLine = '<div class="exam-card__scheduled-time">\uD83D\uDD50 Bắt đầu lúc: ' +
           formatDateTime(exam.startTime) + '</div>';
       }
 
@@ -58,13 +58,13 @@
         '<h3 class="exam-card__name">' + escHtml(exam.name) + '</h3>' +
         '<p class="exam-card__desc">' + escHtml(exam.description || '') + '</p>' +
         '<div class="exam-card__info">' +
-          '<span class="exam-card__info-item">\u23F1 ' + duration + ' phut</span>' +
-          '<span class="exam-card__info-item">\uD83D\uDCDD ' + qCount + ' cau</span>' +
+          '<span class="exam-card__info-item">\u23F1 ' + duration + ' phút</span>' +
+          '<span class="exam-card__info-item">\uD83D\uDCDD ' + qCount + ' câu</span>' +
         '</div>' +
         scheduledLine +
         '<button class="btn btn--primary" data-exam-id="' + exam.id + '"' +
           (available ? '' : ' disabled') + '>' +
-          (available ? 'Bat dau lam bai' : 'Chua den gio') +
+          (available ? 'Bắt đầu làm bài' : 'Chưa đến giờ') +
         '</button>';
 
       grid.appendChild(card);
@@ -107,5 +107,6 @@
     });
   }
 })();
+
 
 

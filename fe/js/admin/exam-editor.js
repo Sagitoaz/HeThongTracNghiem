@@ -1,4 +1,4 @@
-﻿/**
+/**
  * exam-editor.js - Admin exam/question management via backend API.
  * Depends on: AuthService, ApiClient
  */
@@ -94,8 +94,8 @@
       return '<tr ' + activeClass + '>' +
         '<td><strong>' + escHtml(e.name) + '</strong></td>' +
         '<td>' + typeLabel + '</td>' +
-        '<td>' + (e.durationMinutes || 0) + ' phut</td>' +
-        '<td>' + (e.questionCount || 0) + ' cau</td>' +
+        '<td>' + (e.durationMinutes || 0) + ' phút</td>' +
+        '<td>' + (e.questionCount || 0) + ' câu</td>' +
         '<td>-</td>' +
         '<td style="white-space:nowrap">' +
           '<button class="btn btn--secondary btn--sm" onclick="editExam(\'' + e.id + '\')" style="margin-right:4px">Sửa</button>' +
@@ -161,7 +161,7 @@
 
     if (!duration || duration < 1) {
       valid = false;
-      document.getElementById('fExamDurationErr').textContent = 'Thoi gian phai >= 1 phut.';
+      document.getElementById('fExamDurationErr').textContent = 'Thời gian phải >= 1 phút.';
     } else {
       document.getElementById('fExamDurationErr').textContent = '';
     }
@@ -223,8 +223,8 @@
     var list = document.getElementById('questionList');
     if (!qs.length) {
       list.innerHTML = '<div class="empty-state" style="padding:32px"><div class="empty-state__icon">\uD83D\uDCAD</div>' +
-        '<div class="empty-state__title">Chua co cau hoi</div>' +
-        '<div class="empty-state__desc">Them cau hoi moi hoac nhap tu file Excel.</div></div>';
+        '<div class="empty-state__title">Chưa có câu hỏi</div>' +
+        '<div class="empty-state__desc">Thêm câu hỏi mới hoặc nhập từ tệp Excel.</div></div>';
       return;
     }
 
@@ -280,7 +280,7 @@
     var correctRadio = document.querySelector('input[name=correctOpt]:checked');
 
     if (!text) {
-      document.getElementById('fQTextErr').textContent = 'Vui long nhap cau hoi.';
+      document.getElementById('fQTextErr').textContent = 'Vui lòng nhập câu hỏi.';
       return;
     }
     document.getElementById('fQTextErr').textContent = '';
@@ -323,7 +323,7 @@
     }
 
     var resultDiv = document.getElementById('importResult');
-    resultDiv.innerHTML = '<div class="alert alert--info" style="margin-bottom:8px">Dang import...</div>';
+    resultDiv.innerHTML = '<div class="alert alert--info" style="margin-bottom:8px">Đang nhập dữ liệu...</div>';
 
     try {
       var form = new FormData();
@@ -335,7 +335,7 @@
       });
 
       resultDiv.innerHTML = '<div class="alert alert--success">Import thành công: ' +
-        (result.importedCount || 0) + ' cau. Loi: ' + (result.failedCount || 0) + '</div>';
+        (result.importedCount || 0) + ' câu. Lỗi: ' + (result.failedCount || 0) + '</div>';
       await openQuestions(selectedExamId);
       await loadExams();
     } catch (err) {
@@ -375,7 +375,7 @@
 
   window.editQuestion = function (questionId) { openQModal(questionId); };
   window.deleteQuestionConfirm = function (questionId) {
-    openDeleteModal('Ban co chac muon xoa cau hoi nay?', async function () {
+    openDeleteModal('Bạn có chắc muốn xóa câu hỏi này?', async function () {
       try {
         await ApiClient.request('/admin/exams/' + encodeURIComponent(selectedExamId) + '/questions/' + encodeURIComponent(questionId), {
           method: 'DELETE', body: null, headers: {},
@@ -396,6 +396,7 @@
       .replace(/"/g, '&quot;');
   }
 })();
+
 
 
 

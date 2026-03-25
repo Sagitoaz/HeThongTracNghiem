@@ -1,5 +1,5 @@
 /**
- * export-service.js — PDF export using jsPDF
+ * export-service.js - PDF export using jsPDF
  * Depends on: jsPDF CDN (window.jspdf.jsPDF)
  */
 const ExportService = (function () {
@@ -28,17 +28,17 @@ const ExportService = (function () {
     // Title
     doc.setFontSize(18);
     doc.setTextColor(192, 40, 45);
-    doc.text('Thong ke ket qua thi', 20, y);
+    doc.text('Thống kê kết quả thi', 20, y);
     y += 8;
 
     doc.setFontSize(13);
     doc.setTextColor(30, 30, 30);
-    doc.text('De thi: ' + stats.examName, 20, y);
+    doc.text('Đề thi: ' + stats.examName, 20, y);
     y += 8;
 
     doc.setFontSize(11);
     doc.setTextColor(100, 100, 100);
-    doc.text('Ngay xuat: ' + new Date().toLocaleDateString('vi-VN'), 20, y);
+    doc.text('Ngày xuất: ' + new Date().toLocaleDateString('vi-VN'), 20, y);
     y += 10;
 
     // Summary table
@@ -48,13 +48,13 @@ const ExportService = (function () {
     doc.setFontSize(10);
     doc.setTextColor(50, 50, 50);
     doc.setFont(undefined, 'bold');
-    doc.text('Chi so', 22, y + 5.5);
-    doc.text('Gia tri', 120, y + 5.5);
+    doc.text('Chỉ số', 22, y + 5.5);
+    doc.text('Giá trị', 120, y + 5.5);
     y += 8;
 
     var summaryRows = [
-      ['Tong luot nop bai', String(stats.attempts)],
-      ['Diem trung binh', stats.averageScore + ' / 10'],
+      ['Tổng lượt nộp bài', String(stats.attempts)],
+      ['Điểm trung bình', stats.averageScore + ' / 10'],
     ];
 
     doc.setFont(undefined, 'normal');
@@ -70,7 +70,7 @@ const ExportService = (function () {
     doc.setFontSize(12);
     doc.setFont(undefined, 'bold');
     doc.setTextColor(30, 30, 30);
-    doc.text('Phan phoi diem', 20, y);
+    doc.text('Phân phối điểm', 20, y);
     y += 6;
 
     var bucketLabels = ['0 - <2', '2 - <4', '4 - <6', '6 - <8', '8 - 10'];
@@ -79,9 +79,9 @@ const ExportService = (function () {
     doc.setFontSize(10);
     doc.setFont(undefined, 'bold');
     doc.rect(20, y, 170, 8, 'FD');
-    doc.text('Khoang diem', 22, y + 5.5);
-    doc.text('So luong', 100, y + 5.5);
-    doc.text('Ti le (%)', 140, y + 5.5);
+    doc.text('Khoảng điểm', 22, y + 5.5);
+    doc.text('Số lượng', 100, y + 5.5);
+    doc.text('Tỉ lệ (%)', 140, y + 5.5);
     y += 8;
 
     doc.setFont(undefined, 'normal');
@@ -99,7 +99,7 @@ const ExportService = (function () {
     if (stats.results && stats.results.length > 0) {
       doc.setFontSize(12);
       doc.setFont(undefined, 'bold');
-      doc.text('Danh sach ket qua sinh vien', 20, y);
+      doc.text('Danh sách kết quả sinh viên', 20, y);
       y += 6;
 
       doc.setFontSize(9);
@@ -107,10 +107,10 @@ const ExportService = (function () {
       doc.rect(20, y, 170, 7, 'FD');
       doc.setFont(undefined, 'bold');
       doc.text('STT', 22, y + 5);
-      doc.text('Ten dang nhap', 35, y + 5);
-      doc.text('Diem', 100, y + 5);
-      doc.text('So cau dung', 120, y + 5);
-      doc.text('Thoi diem nop', 148, y + 5);
+      doc.text('Tên đăng nhập', 35, y + 5);
+      doc.text('Điểm', 100, y + 5);
+      doc.text('Số câu đúng', 120, y + 5);
+      doc.text('Thời điểm nộp', 148, y + 5);
       y += 7;
 
       doc.setFont(undefined, 'normal');
@@ -147,34 +147,34 @@ const ExportService = (function () {
 
     doc.setFontSize(18);
     doc.setTextColor(192, 40, 45);
-    doc.text('Ket qua thi cua sinh vien', 20, y);
+    doc.text('Kết quả thi của sinh viên', 20, y);
     y += 8;
 
     doc.setFontSize(12);
     doc.setTextColor(30, 30, 30);
-    doc.text('Sinh vien: ' + student.username, 20, y);
+    doc.text('Sinh viên: ' + student.username, 20, y);
     y += 6;
     doc.setFontSize(10);
     doc.setTextColor(100, 100, 100);
     doc.text('Email: ' + (student.email || ''), 20, y);
     y += 6;
-    doc.text('Ngay xuat: ' + new Date().toLocaleDateString('vi-VN'), 20, y);
+    doc.text('Ngày xuất: ' + new Date().toLocaleDateString('vi-VN'), 20, y);
     y += 10;
 
     if (results.length === 0) {
       doc.setFontSize(11);
       doc.setTextColor(150, 150, 150);
-      doc.text('Chua co ket qua nao.', 20, y);
+      doc.text('Chưa có kết quả nào.', 20, y);
     } else {
       doc.setFontSize(10);
       doc.setFillColor(245, 245, 245);
       doc.rect(20, y, 170, 8, 'FD');
       doc.setFont(undefined, 'bold');
       doc.text('STT', 22, y + 5.5);
-      doc.text('Ten bai thi', 35, y + 5.5);
-      doc.text('Diem', 110, y + 5.5);
-      doc.text('Dung/Tong', 130, y + 5.5);
-      doc.text('Nop luc', 155, y + 5.5);
+      doc.text('Tên bài thi', 35, y + 5.5);
+      doc.text('Điểm', 110, y + 5.5);
+      doc.text('Đúng/Tổng', 130, y + 5.5);
+      doc.text('Nộp lúc', 155, y + 5.5);
       y += 8;
 
       doc.setFont(undefined, 'normal');
@@ -195,7 +195,7 @@ const ExportService = (function () {
       y += 4;
       var avg = results.reduce(function (s, r) { return s + r.score; }, 0) / results.length;
       doc.setFont(undefined, 'bold');
-      doc.text('Diem trung binh: ' + avg.toFixed(1) + ' / 10', 20, y);
+      doc.text('Điểm trung bình: ' + avg.toFixed(1) + ' / 10', 20, y);
     }
 
     doc.save('ket-qua-' + sanitizeFilename(student.username) + '.pdf');
@@ -210,3 +210,4 @@ const ExportService = (function () {
     exportStudentResultPDF,
   };
 })();
+

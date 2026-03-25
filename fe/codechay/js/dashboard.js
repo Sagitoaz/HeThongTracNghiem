@@ -31,22 +31,22 @@ async function renderDashboard() {
         <td>${escapeHtml(formatExamType(e))}</td>
         <td>-</td>
         <td class="row">
-          <a class="btn btn-sm btn-ghost" href="./exam-editor.html?examId=${e.id}">Sua</a>
-          <button class="btn btn-sm btn-danger" data-del-exam="${e.id}">Xoa</button>
+          <a class="btn btn-sm btn-ghost" href="./exam-editor.html?examId=${e.id}">Sửa</a>
+          <button class="btn btn-sm btn-danger" data-del-exam="${e.id}">Xóa</button>
         </td>
       </tr>
     `).join('');
 
     document.getElementById('userRows').innerHTML =
-      '<tr><td colspan="4" class="muted">API hien tai chua ho tro CRUD user tren dashboard.</td></tr>';
+      '<tr><td colspan="4" class="muted">API hiện tại chưa hỗ trợ CRUD người dùng trên bảng điều khiển.</td></tr>';
     document.getElementById('btnSaveUser').disabled = true;
     document.getElementById('btnClearUser').disabled = true;
     document.getElementById('btnNewUser').disabled = true;
     document.getElementById('uName').disabled = true;
     document.getElementById('uEmail').disabled = true;
-    document.getElementById('userFormHint').textContent = 'Khong ho tro boi API hien tai.';
+    document.getElementById('userFormHint').textContent = 'Không hỗ trợ bởi API hiện tại.';
   } catch (err) {
-    alert('Khong tai duoc dashboard: ' + (err.message || err));
+    alert('Không tải được bảng điều khiển: ' + (err.message || err));
   }
 }
 
@@ -54,7 +54,7 @@ document.addEventListener('click', async (e) => {
   const delExam = e.target?.dataset?.delExam;
   if (!delExam) return;
 
-  if (!confirm('Xac nhan xoa de thi?')) return;
+  if (!confirm('Xác nhận xóa đề thi?')) return;
 
   try {
     await ApiClient.request('/admin/exams/' + encodeURIComponent(delExam), {
@@ -64,7 +64,7 @@ document.addEventListener('click', async (e) => {
     });
     await renderDashboard();
   } catch (err) {
-    alert('Khong xoa duoc de thi: ' + (err.message || err));
+    alert('Không xóa được đề thi: ' + (err.message || err));
   }
 });
 
@@ -83,3 +83,4 @@ function escapeHtml(str) {
     .replace(/>/g, '&gt;')
     .replace(/\"/g, '&quot;');
 }
+

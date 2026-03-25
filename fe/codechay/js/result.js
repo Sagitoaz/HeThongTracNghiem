@@ -1,4 +1,4 @@
-﻿// result.js - Trang ket qua qua backend API
+// result.js - Trang ket qua qua backend API
 
 const LETTERS = ['A', 'B', 'C', 'D', 'E'];
 
@@ -28,10 +28,10 @@ async function renderResult() {
     const exam = await ApiClient.request('/exams/' + encodeURIComponent(data.examId));
 
     document.getElementById('rs-score').textContent = Number(data.score || 0).toFixed(1);
-    document.getElementById('rs-meta').textContent = `Dung: ${data.correct}/${data.total}`;
+    document.getElementById('rs-meta').textContent = `Đúng: ${data.correct}/${data.total}`;
     document.getElementById('rs-exam').textContent = data.examName || exam.name || '--';
     document.getElementById('rs-duration').textContent = '--';
-    document.getElementById('rs-submitted').textContent = 'Da nop thanh cong';
+    document.getElementById('rs-submitted').textContent = 'Đã nộp thành công';
 
     const pct = ((data.correct / Math.max(1, data.total)) * 100).toFixed(1);
     document.querySelector('.chart').style.background =
@@ -62,17 +62,17 @@ async function renderResult() {
       return `<div class="question-card">
         <div class="q-head">
           <div class="q-left">
-            <p class="q-number">CAU ${idx + 1}</p>
+            <p class="q-number">CÂU ${idx + 1}</p>
             <p class="q-text">${escapeHtml(q.text || '')}</p>
           </div>
-          <span class="q-badge ${isCorrect ? 'correct' : 'wrong'}">${isCorrect ? 'Dung' : 'Sai'}</span>
+          <span class="q-badge ${isCorrect ? 'correct' : 'wrong'}">${isCorrect ? 'Đúng' : 'Sai'}</span>
         </div>
         <div class="options">${optionsHtml}</div>
         <div class="explain"><span class="bulb">\uD83D\uDCA1</span><p>${escapeHtml(a.explanation || '')}</p></div>
       </div>`;
     }).join('');
   } catch (err) {
-    alert('Khong tai duoc ket qua: ' + (err.message || err));
+    alert('Không tải được kết quả: ' + (err.message || err));
     window.location.href = './index.html';
   }
 }
@@ -92,4 +92,5 @@ document.querySelector('.logout-btn').addEventListener('click', function (e) {
 });
 
 renderResult();
+
 

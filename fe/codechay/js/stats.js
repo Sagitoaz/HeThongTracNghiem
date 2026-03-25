@@ -16,7 +16,7 @@ async function loadExamOptions() {
   const data = await ApiClient.request('/admin/exams?page=0&size=200');
   examMap = data.content || [];
   $('#filterExam').innerHTML = `
-    <option value="all">Tat ca</option>
+    <option value="all">Tất cả</option>
     ${examMap.map((e) => `<option value="${e.id}">${escapeHtml(e.name)}</option>`).join('')}
   `;
 }
@@ -30,7 +30,7 @@ async function applyFilter() {
   $('#kpiDone').textContent = '-';
 
   if (examId === 'all') {
-    $('#rows').innerHTML = '<tr><td colspan="5">Chon mot de thi de xem thong ke chi tiet.</td></tr>';
+    $('#rows').innerHTML = '<tr><td colspan="5">Chọn một đề thi để xem thống kê chi tiết.</td></tr>';
     drawHistogram($('#chart'), []);
     return [];
   }
@@ -70,7 +70,7 @@ $('#toDate').addEventListener('change', () => { applyFilter().catch(showErr); })
 $('#btnXlsx').addEventListener('click', async () => {
   const examId = $('#filterExam').value;
   if (examId === 'all') {
-    alert('Hay chon mot de thi de xuat Excel.');
+    alert('Hãy chọn một đề thi để xuất Excel.');
     return;
   }
   try {
@@ -84,7 +84,7 @@ $('#btnXlsx').addEventListener('click', async () => {
 $('#btnPdf').addEventListener('click', async () => {
   const examId = $('#filterExam').value;
   if (examId === 'all') {
-    alert('Hay chon mot de thi de xuat PDF.');
+    alert('Hãy chọn một đề thi để xuất PDF.');
     return;
   }
   try {
@@ -107,7 +107,7 @@ function downloadBlob(blob, filename) {
 }
 
 function showErr(err) {
-  alert('Khong tai duoc thong ke: ' + (err.message || err));
+  alert('Không tải được thống kê: ' + (err.message || err));
 }
 
 function escapeHtml(str) {
@@ -131,3 +131,4 @@ document.querySelector('.logout-btn').addEventListener('click', function (e) {
 });
 
 init().catch(showErr);
+

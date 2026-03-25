@@ -17,10 +17,10 @@ function scoreBadge(score) {
 
 function renderTable(data) {
   const tbody = document.getElementById('results-tbody');
-  document.getElementById('result-count').textContent = `Danh sach ket qua (${data.length})`;
+  document.getElementById('result-count').textContent = `Danh sách kết quả (${data.length})`;
 
   if (!data.length) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#9ca3af;padding:24px">Khong co ket qua nao.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#9ca3af;padding:24px">Không có kết quả nào.</td></tr>';
     return;
   }
 
@@ -47,11 +47,11 @@ async function applyFilter() {
   }
 
   try {
-    const q = '?page=0&size=200' + (examId && examId !== 'Tat ca' ? '&examId=' + encodeURIComponent(examId) : '');
+    const q = '?page=0&size=200' + (examId && examId !== 'Tất cả' ? '&examId=' + encodeURIComponent(examId) : '');
     const res = await ApiClient.request('/admin/students/' + encodeURIComponent(studentId) + '/results' + q);
     renderTable(res.content || []);
   } catch (err) {
-    alert('Khong tai duoc ket qua: ' + (err.message || err));
+    alert('Không tải được kết quả: ' + (err.message || err));
     renderTable([]);
   }
 }
@@ -60,7 +60,7 @@ async function loadExamOptions() {
   const data = await ApiClient.request('/admin/exams?page=0&size=200');
   const exams = data.content || [];
   const sel = document.getElementById('exam');
-  sel.innerHTML = '<option>Tat ca</option>' + exams.map((e) => `<option value="${e.id}">${escapeHtml(e.name)}</option>`).join('');
+  sel.innerHTML = '<option>Tất cả</option>' + exams.map((e) => `<option value="${e.id}">${escapeHtml(e.name)}</option>`).join('');
 }
 
 document.getElementById('username').addEventListener('input', applyFilter);
@@ -80,7 +80,7 @@ document.getElementById('results-tbody').addEventListener('click', async (e) => 
     const blob = await ApiClient.request('/admin/students/' + encodeURIComponent(studentId) + '/results/export?format=pdf');
     downloadBlob(blob, `student-${studentId}-results.pdf`);
   } catch (err) {
-    alert('Export that bai: ' + (err.message || err));
+    alert('Xuất dữ liệu thất bại: ' + (err.message || err));
   }
 });
 
@@ -116,3 +116,4 @@ async function init() {
 }
 
 init();
+
